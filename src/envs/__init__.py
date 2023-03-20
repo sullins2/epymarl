@@ -98,11 +98,11 @@ class _GymmaWrapper(MultiAgentEnv):
 
         self._seed = seed
         self._env.seed(self._seed)
-
+    
     def step(self, actions):
         """ Returns reward, terminated, info """
         actions = [int(a) for a in actions]
-        self._obs, reward, done, self._info = self._env.step(actions)
+        self._obs, reward, done, info = self._env.step(actions)
         self._obs = [
             np.pad(
                 o,
@@ -113,11 +113,7 @@ class _GymmaWrapper(MultiAgentEnv):
             for o in self._obs
         ]
 
-        if type(reward) is list:
-            reward = sum(reward)
-        if type(done) is list:
-            done = all(done)
-        return float(reward), done, {}
+        return float(sum(reward)), all(done), {}, reward
 
     def get_obs(self):
         """ Returns all agent observations in a list """
