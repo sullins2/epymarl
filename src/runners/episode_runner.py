@@ -52,6 +52,8 @@ class EpisodeRunner:
         episode_return = 0
         self.mac.init_hidden(batch_size=self.batch_size)
 
+        curRew = [[],[],[],[]]
+        cumRew = [0,0,0,0]
         while not terminated:
 
             pre_transition_data = {
@@ -66,14 +68,23 @@ class EpisodeRunner:
             # Receive the actions for each agent at this timestep in a batch of size 1
             actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
 
-            reward, terminated, env_info = self.env.step(actions[0])
-            if test_mode and self.args.render:
-                self.env.render()
+            reward, terminated, env_info, rewards = self.env.step(actions[0])
             episode_return += reward
+
+            # if rewards at end is a list
+            # accumulate cumReward with args.gamma
+            curRew[0].append(rewards[0])
+            curRew[1].append(rewards[1])
+            curRew[2].append(rewards[2])
+            curRew[3].append(rewards[3])
+            cumRew[0] = self.args.gamma*cumRew[0] + rewards[0]
+            cumRew[1] = self.args.gamma*cumRew[1] + rewards[1]
+            cumRew[2] = self.args.gamma*cumRew[2] + rewards[2]
+            cumRew[3] = self.args.gamma*cumRew[3] + rewards[3]
 
             post_transition_data = {
                 "actions": actions,
-                "reward": [(reward,)],
+                "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])],
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
             }
 
@@ -81,18 +92,42 @@ class EpisodeRunner:
 
             self.t += 1
 
+        #torch.Size([1, 101, 4])
+        totalRew = sum(cumRew)
+        for i in range(4):
+          for t in range(self.t):
+            curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
+
+        # print("data.tranisition_data")
+        # print(self.batch.data.transition_data["reward"].size())
+        # print(self.batch.data.transition_data["reward"][0])
+
+        # set them all as curRew
+        for t in range(self.t):
+          for i in range(4):
+            self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
+
+        # now the total reward for time t is sum of all agents at time t
+        # for t in range(self.t):
+        #   value = 0
+        #   for i in range(4):
+        #     value += curRew[i][t]
+        #   self.batch.data.transition_data['reward'][0][t][0] = value
+
         last_data = {
             "state": [self.env.get_state()],
             "avail_actions": [self.env.get_avail_actions()],
             "obs": [self.env.get_obs()]
         }
-        if test_mode and self.args.render:
-            print(f"Episode return: {episode_return}")
         self.batch.update(last_data, ts=self.t)
+        # print("AFTER")
 
         # Select actions in the last stored state
         actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
         self.batch.update({"actions": actions}, ts=self.t)
+        # print("ACTIONS")
+
+        #print(self.batch.data.transition_data['reward'])
 
         cur_stats = self.test_stats if test_mode else self.train_stats
         cur_returns = self.test_returns if test_mode else self.train_returns
@@ -113,7 +148,7 @@ class EpisodeRunner:
             if hasattr(self.mac.action_selector, "epsilon"):
                 self.logger.log_stat("epsilon", self.mac.action_selector.epsilon, self.t_env)
             self.log_train_stats_t = self.t_env
-
+        # print("LEFT")
         return self.batch
 
     def _log(self, returns, stats, prefix):
