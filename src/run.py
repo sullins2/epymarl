@@ -94,7 +94,7 @@ def run_sequential(args, logger):
 
     # Default/Base scheme
     scheme = {
-        "state": {"vshape": env_info["state_shape"]},
+        #"state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
         "avail_actions": {
@@ -199,6 +199,7 @@ def run_sequential(args, logger):
 
         # Execute test runs once in a while
         n_test_runs = max(1, args.test_nepisode // runner.batch_size)
+        #print("N_REST_RUNS: ", n_test_runs)
         if (runner.t_env - last_test_T) / args.test_interval >= 1.0:
 
             logger.console_logger.info(
