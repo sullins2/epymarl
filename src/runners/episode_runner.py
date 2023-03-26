@@ -12,7 +12,12 @@ class EpisodeRunner:
         self.batch_size = self.args.batch_size_run
         assert self.batch_size == 1
 
+        print("ARGS: ")
+        print(self.args.env)
+        print(self.args.env_args)
         self.env = env_REGISTRY[self.args.env](**self.args.env_args)
+        # print("HEREEEEE: ")
+        # print(self.args.env_args)
         self.episode_limit = self.env.episode_limit
         self.t = 0
 
@@ -44,9 +49,17 @@ class EpisodeRunner:
         self.batch = self.new_batch()
         self.env.reset()
         self.t = 0
+    
+    def reset_test(self):
+        self.batch = self.new_batch()
+        self.env.reset_test()
+        self.t = 0
 
     def run(self, test_mode=False):
-        self.reset()
+        if test_mode == False:
+          self.reset()
+        if test_mode == True:
+          self.reset_test()
 
         terminated = False
         episode_return = 0
@@ -56,11 +69,18 @@ class EpisodeRunner:
         cumRew = [0,0,0,0]
         while not terminated:
 
-            pre_transition_data = {
-                "state": [self.env.get_state()],
-                "avail_actions": [self.env.get_avail_actions()],
-                "obs": [self.env.get_obs()]
-            }
+            if test_mode:
+              pre_transition_data = {
+                #"state": [self.env.get_state_test()],
+                "avail_actions": [self.env.get_avail_actions_test()],
+                "obs": [self.env.get_obs_test()]
+              }
+            else:
+              pre_transition_data = {
+                  #"state": [self.env.get_state()],
+                  "avail_actions": [self.env.get_avail_actions()],
+                  "obs": [self.env.get_obs()]
+              }
 
             self.batch.update(pre_transition_data, ts=self.t)
 
@@ -68,7 +88,11 @@ class EpisodeRunner:
             # Receive the actions for each agent at this timestep in a batch of size 1
             actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
 
-            reward, terminated, env_info, rewards = self.env.step(actions[0])
+            if test_mode == True:
+              reward, terminated, env_info, rewards = self.env.step_test(actions[0])
+            else:
+              reward, terminated, env_info, rewards = self.env.step(actions[0])
+            
             episode_return += reward
 
             # if rewards at end is a list
@@ -82,6 +106,7 @@ class EpisodeRunner:
             cumRew[2] = self.args.gamma*cumRew[2] + rewards[2]
             cumRew[3] = self.args.gamma*cumRew[3] + rewards[3]
 
+          
             post_transition_data = {
                 "actions": actions,
                 "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])],
@@ -96,7 +121,7 @@ class EpisodeRunner:
         totalRew = sum(cumRew)
         for i in range(4):
           for t in range(self.t):
-            curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
+            curRew[i][t] += (20.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         # print("data.tranisition_data")
         # print(self.batch.data.transition_data["reward"].size())
@@ -114,11 +139,18 @@ class EpisodeRunner:
         #     value += curRew[i][t]
         #   self.batch.data.transition_data['reward'][0][t][0] = value
 
-        last_data = {
-            "state": [self.env.get_state()],
-            "avail_actions": [self.env.get_avail_actions()],
-            "obs": [self.env.get_obs()]
-        }
+        if test_mode:
+          last_data = {
+            #"state": [self.env.get_state_test()],
+            "avail_actions": [self.env.get_avail_actions_test()],
+            "obs": [self.env.get_obs_test()]
+          }
+        if test_mode == False:
+          last_data = {
+              #"state": [self.env.get_state()],
+              "avail_actions": [self.env.get_avail_actions()],
+              "obs": [self.env.get_obs()]
+          }
         self.batch.update(last_data, ts=self.t)
         # print("AFTER")
 
@@ -140,8 +172,12 @@ class EpisodeRunner:
             self.t_env += self.t
 
         cur_returns.append(episode_return)
+        # if test_mode:
+        #   print("EP RETURN: ", episode_return)
+
 
         if test_mode and (len(self.test_returns) == self.args.test_nepisode):
+            print("SUM OF TEST: ", sum(cur_returns))
             self._log(cur_returns, cur_stats, log_prefix)
         elif self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
             self._log(cur_returns, cur_stats, log_prefix)
