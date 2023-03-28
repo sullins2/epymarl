@@ -2,17 +2,17 @@
 
 # use epsilon greedy action selector
 action_selector: "epsilon_greedy"
-epsilon_start: 1.0
+epsilon_start: 0.9
 epsilon_finish: 0.05
-epsilon_anneal_time: 1500000
+epsilon_anneal_time: 400000
 evaluation_epsilon: 0.0
 
 runner: "episode"
 
-buffer_size: 25000
+buffer_size: 55000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 5200
+target_update_interval_or_tau: 3200
 
 
 obs_agent_id: False
