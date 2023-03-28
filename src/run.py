@@ -175,7 +175,7 @@ def run_sequential(args, logger):
     model_save_time = 0
 
     start_time = time.time()
-    last_time = start_time
+    last_time = start_time 
 
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 
