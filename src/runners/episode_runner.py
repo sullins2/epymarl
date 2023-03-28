@@ -73,13 +73,13 @@ class EpisodeRunner:
 
             if test_mode:
               pre_transition_data = {
-                #"state": [self.env.get_state_test()],
+                "state": [self.env.get_state_test()],
                 "avail_actions": [self.env.get_avail_actions_test()],
                 "obs": [self.env.get_obs_test()]
               }
             else:
               pre_transition_data = {
-                  #"state": [self.env.get_state()],
+                  "state": [self.env.get_state()],
                   "avail_actions": [self.env.get_avail_actions()],
                   "obs": [self.env.get_obs()]
               }
@@ -95,7 +95,9 @@ class EpisodeRunner:
             else:
               reward, terminated, env_info, rewards = self.env.step(actions[0])
             
-            episode_return += reward
+            # episode_return += reward
+            episode_return = 0.99*episode_return + reward
+
 
             # if rewards at end is a list
             # accumulate cumReward with args.gamma
@@ -150,13 +152,13 @@ class EpisodeRunner:
 
         if test_mode:
           last_data = {
-            #"state": [self.env.get_state_test()],
+            "state": [self.env.get_state_test()],
             "avail_actions": [self.env.get_avail_actions_test()],
             "obs": [self.env.get_obs_test()]
           }
         if test_mode == False:
           last_data = {
-              #"state": [self.env.get_state()],
+              "state": [self.env.get_state()],
               "avail_actions": [self.env.get_avail_actions()],
               "obs": [self.env.get_obs()]
           }
