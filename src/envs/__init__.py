@@ -31,7 +31,7 @@ class TimeLimit(GymTimeLimit):
         # if self.env.spec is not None:
         #     self.env.spec.max_episode_steps = max_episode_steps
         self._max_episode_steps = max_episode_steps
-        self._elapsed_steps = None
+        self._elapsed_steps = None 
 
     def step(self, action):
         assert (
