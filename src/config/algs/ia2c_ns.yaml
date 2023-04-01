@@ -3,14 +3,14 @@
 action_selector: "soft_policies"
 mask_before_softmax: True
 
-runner: "parallel"
+runner: "episode"
 
-buffer_size: 10
-batch_size_run: 10
-batch_size: 10
+buffer_size: 100000
+batch_size_run: 1
+batch_size: 64
 
 # update the target network every {} training steps
-target_update_interval_or_tau: 200
+target_update_interval_or_tau: 3200
 
 lr: 0.0005
 
@@ -22,11 +22,11 @@ mac: "non_shared_mac"
 agent: "rnn_ns"
 agent_output_type: "pi_logits"
 learner: "actor_critic_learner"
-entropy_coef: 0.001
+entropy_coef: 0.00
 standardise_returns: False
-standardise_rewards: True
+standardise_rewards: False
 use_rnn: False
-q_nstep: 5 # 1 corresponds to normal r + gammaV
+q_nstep: 1 # 1 corresponds to normal r + gammaV
 critic_type: "ac_critic_ns"
 name: "ia2c_ns"
 
