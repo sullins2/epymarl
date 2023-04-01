@@ -26,7 +26,7 @@ agent_output_type: "q"
 learner: "q_learner"
 standardise_returns: False
 standardise_rewards: False
-double_q: False
+double_q: True
 use_rnn: False
 mixer: # Mixer becomes None
 
