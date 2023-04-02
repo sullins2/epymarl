@@ -95,8 +95,8 @@ class EpisodeRunner:
             else:
               reward, terminated, env_info, rewards = self.env.step(actions[0])
             
-            # episode_return += reward
-            episode_return = 0.99*episode_return + reward
+            episode_return += reward
+            # episode_return = 0.99*episode_return + reward
 
 
             # if rewards at end is a list
