@@ -80,7 +80,7 @@ class COMALearner:
         advantages = (q_taken - baseline).detach()
 
         entropy = -th.sum(pi * th.log(pi + 1e-10), dim=-1)
-        coma_loss = - ((advantages * log_pi_taken + self.args.entropy_coef * entropy) * mask).sum() / mask.sum()
+        coma_loss =  ((advantages * log_pi_taken + self.args.entropy_coef * entropy) * mask).sum() / mask.sum()
 
         # Optimise agents
         self.agent_optimiser.zero_grad()
