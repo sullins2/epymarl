@@ -2,14 +2,14 @@
 
 # use epsilon greedy action selector
 action_selector: "epsilon_greedy"
-epsilon_start: 0.9
+epsilon_start: 0.95
 epsilon_finish: 0.05
-epsilon_anneal_time: 400000
+epsilon_anneal_time: 700000
 evaluation_epsilon: 0.0
 
 runner: "episode"
 
-buffer_size: 100000
+buffer_size: 50000
 
 # update the target network every {} episodes
 target_update_interval_or_tau: 3200
@@ -26,7 +26,7 @@ agent_output_type: "q"
 learner: "q_learner"
 standardise_returns: False
 standardise_rewards: False
-double_q: True
+double_q: False
 use_rnn: False
 mixer: # Mixer becomes None
 
