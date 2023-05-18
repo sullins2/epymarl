@@ -198,7 +198,7 @@ def run_sequential(args, logger):
             learner.train(episode_sample, runner.t_env, episode)
 
         # Execute test runs once in a while
-        n_test_runs = max(1, args.test_nepisode // runner.batch_size)
+        n_test_runs = 50#max(1, args.test_nepisode // runner.batch_size)
         #print("N_REST_RUNS: ", n_test_runs)
         if (runner.t_env - last_test_T) / args.test_interval >= 1.0:
 
