@@ -105,14 +105,14 @@ class EpisodeRunner:
             curRew[1].append(rewards[1])
             curRew[2].append(rewards[2])
             curRew[3].append(rewards[3])
-            cumRew[0] = self.args.gamma*cumRew[0] + rewards[0]
-            cumRew[1] = self.args.gamma*cumRew[1] + rewards[1]
-            cumRew[2] = self.args.gamma*cumRew[2] + rewards[2]
-            cumRew[3] = self.args.gamma*cumRew[3] + rewards[3]
-#             cumRew[0] += self.gamma[self.t]*rewards[0]
-#             cumRew[1] += self.gamma[self.t]*rewards[1]
-#             cumRew[2] += self.gamma[self.t]*rewards[2]
-#             cumRew[3] += self.gamma[self.t]*rewards[3]
+#             cumRew[0] = self.args.gamma*cumRew[0] + rewards[0]
+#             cumRew[1] = self.args.gamma*cumRew[1] + rewards[1]
+#             cumRew[2] = self.args.gamma*cumRew[2] + rewards[2]
+#             cumRew[3] = self.args.gamma*cumRew[3] + rewards[3]
+            cumRew[0] += self.gamma[self.t]*rewards[0]
+            cumRew[1] += self.gamma[self.t]*rewards[1]
+            cumRew[2] += self.gamma[self.t]*rewards[2]
+            cumRew[3] += self.gamma[self.t]*rewards[3]
 
             post_transition_data = {
                 "actions": actions,
