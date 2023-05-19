@@ -8,10 +8,10 @@ epsilon_anneal_time: 1750000
 evaluation_epsilon: 0.0
 runner: "episode"
 
-buffer_size: 300000
+buffer_size: 275000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 5200
+target_update_interval_or_tau: 2200
 
 
 obs_agent_id: False
