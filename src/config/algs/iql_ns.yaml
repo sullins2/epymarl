@@ -2,9 +2,9 @@
 
 # use epsilon greedy action selector
 action_selector: "epsilon_greedy"
-epsilon_start: 0.90
+epsilon_start: 0.70
 epsilon_finish: 0.05
-epsilon_anneal_time: 1400000
+epsilon_anneal_time: 800000
 evaluation_epsilon: 0.0
 
 runner: "episode"
