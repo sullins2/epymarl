@@ -2,9 +2,9 @@
 
 # use epsilon greedy action selector
 action_selector: "epsilon_greedy"
-epsilon_start: 0.70
+epsilon_start: 0.95
 epsilon_finish: 0.05
-epsilon_anneal_time: 800000
+epsilon_anneal_time: 1700000
 evaluation_epsilon: 0.0
 
 runner: "episode"
@@ -12,12 +12,12 @@ runner: "episode"
 buffer_size: 550000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 3200
+target_update_interval_or_tau: 5200
 
 
 obs_agent_id: False
 obs_last_action: False
-obs_individual_obs: True
+obs_individual_obs: False
 
 # use the Q_Learner to train
 mac: "non_shared_mac"
