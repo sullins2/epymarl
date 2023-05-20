@@ -94,7 +94,7 @@ def run_sequential(args, logger):
 
     # Default/Base scheme
     scheme = {
-#         "state": {"vshape": env_info["state_shape"]},
+        "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
         "avail_actions": {
@@ -214,8 +214,11 @@ def run_sequential(args, logger):
             last_time = time.time()
 
             last_test_T = runner.t_env
-            for _ in range(n_test_runs):
-                runner.run(test_mode=True)
+            for x in range(n_test_runs):
+              if x == n_test_runs - 1:
+                runner.run(test_mode=True,log_results=True)
+              else:
+                runner.run(test_mode=True, log_results=False)
 
         if args.save_model and (
             runner.t_env - model_save_time >= args.save_model_interval
