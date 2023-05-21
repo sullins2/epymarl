@@ -105,6 +105,8 @@ def run_sequential(args, logger):
         "reward": {"vshape": (4,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
     }
+    print("OBS SHAPE:")
+    print(env_info["obs_shape"])
     groups = {"agents": args.n_agents}
     preprocess = {"actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])}
 
@@ -125,6 +127,8 @@ def run_sequential(args, logger):
 
     # Learner
     learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
+    print("LEARNER")
+    print(learner)
 
     if args.use_cuda:
         learner.cuda()
@@ -181,6 +185,8 @@ def run_sequential(args, logger):
 
     while runner.t_env <= args.t_max:
 
+        # If given 4 different learners, need to split the batch
+        # into 4 parts?
         # Run for a whole episode at a time
         episode_batch = runner.run(test_mode=False)
         buffer.insert_episode_batch(episode_batch)
