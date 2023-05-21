@@ -53,6 +53,11 @@ class EpsilonGreedyActionSelector():
         masked_q_values = agent_inputs.clone()
         masked_q_values[avail_actions == 0.0] = -float("inf")  # should never be selected!
 
+        avail_actions = th.tensor([[[1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1]]], device='cuda:0', dtype=th.int32)
+
         random_numbers = th.rand_like(agent_inputs[:, :, 0])
         pick_random = (random_numbers < self.epsilon).long()
         random_actions = Categorical(avail_actions.float()).sample().long()
