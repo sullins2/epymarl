@@ -31,7 +31,7 @@ class NonSharedMAC:
         avail_actions = th.tensor([[[1, 1, 1, 1, 1],
                        [1, 1, 1, 1, 1],
                        [1, 1, 1, 1, 1],
-                       [1, 1, 1, 1, 1]]], device='cuda:0', dtype=th.int32)
+                       [1, 1, 1, 1, 1]]], device='cpu', dtype=th.int32)
 
         agent_outs, self.hidden_states = self.agent(agent_inputs, self.hidden_states)
 
