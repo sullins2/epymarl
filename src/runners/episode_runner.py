@@ -138,7 +138,7 @@ class EpisodeRunner:
         totalRew = sum(cumRew) + 0.1
         for i in range(4):
           for t in range(self.t):
-            curRew[i][t] += (20.0 / 3.0)*(totalRew - cumRew[i]) / self.t
+            curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         # print("data.tranisition_data")
         # print(self.batch.data.transition_data["reward"].size())
