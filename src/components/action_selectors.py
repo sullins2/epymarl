@@ -46,7 +46,8 @@ class EpsilonGreedyActionSelector():
         self.epsilon = self.schedule.eval(t_env)
 
         if test_mode:
-            # Greedy action selection onlnhjijijijijjjijpjj         m hjbvkfvukuku8888888888p self.epsilon = self.args.evaluation_epsilon
+            # Greedy action selection only
+            self.epsilon = self.args.evaluation_epsilon
 
         # mask actions that are excluded from selection
         masked_q_values = agent_inputs.clone()
