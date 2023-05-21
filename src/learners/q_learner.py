@@ -99,14 +99,14 @@ class QLearner:
             target_max_qvals = target_max_qvals * th.sqrt(self.ret_ms.var) + self.ret_ms.mean
 
         # Calculate 1-step Q-Learning targets
-        print("REWARDS:")
-        print(rewards)
-        print("OTHER:")
-        print(target_max_qvals.detach())
+        # print("REWARDS:")
+        # print(rewards)
+        # print("OTHER:")
+        # print(target_max_qvals.detach())
 
         targets = rewards + self.args.gamma * (1 - terminated) * target_max_qvals.detach()
-        print("TARGETS:")
-        print(targets)
+        # print("TARGETS:")
+        # print(targets)
 
         if self.args.standardise_returns:
             self.ret_ms.update(targets)
