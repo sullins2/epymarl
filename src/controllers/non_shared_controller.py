@@ -22,7 +22,7 @@ class NonSharedMAC:
         agent_outputs = self.forward(ep_batch, t_ep, test_mode=test_mode)
         # chosen_actions = self.action_selector.select_action(agent_outputs[bs], avail_actions[bs], t_env, test_mode=test_mode)
         chosen_actions = self.action_selector.select_action(agent_outputs[bs], None, t_env, test_mode=test_mode)
-        
+       
         return chosen_actions
 
     def forward(self, ep_batch, t, test_mode=False):
@@ -65,7 +65,11 @@ class NonSharedMAC:
         self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
+        # print("ARGS AGENT:")
+        # print(self.args.agent)
         self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
+        # print("AGENT")
+        # print(self.agent)
 
     def _build_inputs(self, batch, t):
         # Assumes homogenous agents with flat observations.
