@@ -133,28 +133,32 @@ class EpisodeRunner:
             self.t += 1
 
         episode_other = sum(cumRew)
+        if test_mode:
+          print("EPISODE OTHER:")
+          print(episode_other)
+            
         self.ret += [cumRew]
         #torch.Size([1, 101, 4])
         totalRew = sum(cumRew) + 0.1
         for i in range(4):
           for t in range(self.t):
-            curRew[i][t] += (20.0 / 3.0)*(totalRew - cumRew[i]) / self.t
+            curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         # print("data.tranisition_data")
         # print(self.batch.data.transition_data["reward"].size())
         # print(self.batch.data.transition_data["reward"][0])
 
-        print("CURREW:")
-        print(curRew)
+        # print("CURREW:")
+        # print(curRew)
         # set them all as curRew
         for t in range(self.t):
           for i in range(4):
             self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
 
-        print("TRANS DATA")
-        print(self.batch.data.transition_data)
-        print("EPS DATA")
-        print(self.batch.data.episode_data)
+        # print("TRANS DATA")
+        # print(self.batch.data.transition_data)
+        # print("EPS DATA")
+        # print(self.batch.data.episode_data)
         # print("BATCH.DATA")
         # print(type(self.batch.data.transition_data["reward"]))
         # print(self.batch.data.transition_data["reward"].size())
