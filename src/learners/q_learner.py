@@ -45,6 +45,8 @@ class QLearner:
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         # Get the relevant quantities
         rewards = batch["reward"][:, :-1]
+        # print("REWARDS:")
+        # print(rewards)
         actions = batch["actions"][:, :-1]
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
@@ -97,7 +99,14 @@ class QLearner:
             target_max_qvals = target_max_qvals * th.sqrt(self.ret_ms.var) + self.ret_ms.mean
 
         # Calculate 1-step Q-Learning targets
+        print("REWARDS:")
+        print(rewards)
+        print("OTHER:")
+        print(target_max_qvals.detach())
+
         targets = rewards + self.args.gamma * (1 - terminated) * target_max_qvals.detach()
+        print("TARGETS:")
+        print(targets)
 
         if self.args.standardise_returns:
             self.ret_ms.update(targets)
