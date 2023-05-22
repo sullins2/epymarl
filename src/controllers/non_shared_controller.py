@@ -16,14 +16,23 @@ class NonSharedMAC:
 
     def select_actions(self, ep_batch, t_ep, t_env, bs=slice(None), test_mode=False):
         # Only select actions for the selected batch elements in bs
-        avail_actions = ep_batch["avail_actions"][:, t_ep]
+        # avail_actions = ep_batch["avail_actions"][:, t_ep]
+        # print("AVA ACTIS")
+        # print(avail_actions)
         agent_outputs = self.forward(ep_batch, t_ep, test_mode=test_mode)
-        chosen_actions = self.action_selector.select_action(agent_outputs[bs], avail_actions[bs], t_env, test_mode=test_mode)
+        # chosen_actions = self.action_selector.select_action(agent_outputs[bs], avail_actions[bs], t_env, test_mode=test_mode)
+        chosen_actions = self.action_selector.select_action(agent_outputs[bs], None, t_env, test_mode=test_mode)
+       
         return chosen_actions
 
     def forward(self, ep_batch, t, test_mode=False):
         agent_inputs = self._build_inputs(ep_batch, t)
-        avail_actions = ep_batch["avail_actions"][:, t]
+        # avail_actions = ep_batch["avail_actions"][:, t]
+        avail_actions = th.tensor([[[1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1]]], device='cpu', dtype=th.int32)
+
         agent_outs, self.hidden_states = self.agent(agent_inputs, self.hidden_states)
 
         # Softmax the agent outputs if they're policy logits
@@ -56,7 +65,11 @@ class NonSharedMAC:
         self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
+        # print("ARGS AGENT:")
+        # print(self.args.agent)
         self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
+        # print("AGENT")
+        # print(self.agent)
 
     def _build_inputs(self, batch, t):
         # Assumes homogenous agents with flat observations.
