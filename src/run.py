@@ -8,7 +8,6 @@ from types import SimpleNamespace as SN
 from utils.logging import Logger
 from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
-# TESTING
 
 from learners import REGISTRY as le_REGISTRY
 from runners import REGISTRY as r_REGISTRY
@@ -35,7 +34,6 @@ def run(_run, _config, _log):
     # configure tensorboard logger
     # unique_token = "{}__{}".format(args.name, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
-    a = 1
     try:
         map_name = _config["env_args"]["map_name"]
     except:
