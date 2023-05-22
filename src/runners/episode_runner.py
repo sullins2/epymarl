@@ -2,11 +2,13 @@ from envs import REGISTRY as env_REGISTRY
 from functools import partial
 from components.episode_buffer import EpisodeBatch
 import numpy as np
+# TESTING
 
 
 class EpisodeRunner:
 
     def __init__(self, args, logger):
+        aa = 1
         self.args = args
         self.logger = logger
         self.batch_size = self.args.batch_size_run
