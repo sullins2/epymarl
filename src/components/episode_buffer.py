@@ -213,6 +213,8 @@ class ReplayBuffer(EpisodeBatch):
         self.episodes_in_buffer = 0
 
     def insert_episode_batch(self, ep_batch):
+        # print("EP BATCH")
+        # print(ep_batch)
         if self.buffer_index + ep_batch.batch_size <= self.buffer_size:
             self.update(ep_batch.data.transition_data,
                         slice(self.buffer_index, self.buffer_index + ep_batch.batch_size),
@@ -222,6 +224,8 @@ class ReplayBuffer(EpisodeBatch):
                         slice(self.buffer_index, self.buffer_index + ep_batch.batch_size))
             self.buffer_index = (self.buffer_index + ep_batch.batch_size)
             self.episodes_in_buffer = max(self.episodes_in_buffer, self.buffer_index)
+            if self.episodes_in_buffer % 500 == 0:
+              print("EPS IN BUF:", self.episodes_in_buffer)
             self.buffer_index = self.buffer_index % self.buffer_size
             assert self.buffer_index < self.buffer_size
         else:
