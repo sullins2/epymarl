@@ -45,11 +45,13 @@ class QLearner:
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         # Get the relevant quantities
         rewards = batch["reward"][:, :-1]
+        # print("REWARDS:")
+        # print(rewards)
         actions = batch["actions"][:, :-1]
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
-        avail_actions = batch["avail_actions"]
+        # avail_actions = batch["avail_actions"]
 
         if self.args.standardise_rewards:
             self.rew_ms.update(rewards)
@@ -68,21 +70,22 @@ class QLearner:
         # Calculate the Q-Values necessary for the target
         target_mac_out = []
         self.target_mac.init_hidden(batch.batch_size)
+        # print("FFF:", batch.max_seq_length)
         for t in range(batch.max_seq_length):
-            target_agent_outs = self.target_mac.forward(batch, t=t)
-            target_mac_out.append(target_agent_outs)
+          target_agent_outs = self.target_mac.forward(batch, t=t)#batch.max_seq_length-1)
+          target_mac_out.append(target_agent_outs)
 
         # We don't need the first timesteps Q-Value estimate for calculating targets
         target_mac_out = th.stack(target_mac_out[1:], dim=1)  # Concat across time
 
         # Mask out unavailable actions
-        target_mac_out[avail_actions[:, 1:] == 0] = -9999999
+        # target_mac_out[avail_actions[:, 1:] == 0] = -9999999
 
         # Max over target Q-Values
         if self.args.double_q:
             # Get actions that maximise live Q (for double q-learning)
             mac_out_detach = mac_out.clone().detach()
-            mac_out_detach[avail_actions == 0] = -9999999
+            # mac_out_detach[avail_actions == 0] = -9999999
             cur_max_actions = mac_out_detach[:, 1:].max(dim=3, keepdim=True)[1]
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
         else:
@@ -97,7 +100,14 @@ class QLearner:
             target_max_qvals = target_max_qvals * th.sqrt(self.ret_ms.var) + self.ret_ms.mean
 
         # Calculate 1-step Q-Learning targets
+        # print("REWARDS:")
+        # print(rewards)
+        # print("OTHER:")
+        # print(target_max_qvals.detach())
+
         targets = rewards + self.args.gamma * (1 - terminated) * target_max_qvals.detach()
+        # print("TARGETS:")
+        # print(targets)
 
         if self.args.standardise_returns:
             self.ret_ms.update(targets)
