@@ -13,7 +13,7 @@ log_interval: 2000 # Log summary of stats after every {} timesteps
 runner_log_interval: 2000 # Log runner stats (not test stats) every {} timesteps
 learner_log_interval: 2000 # Log training stats every {} timesteps
 t_max: 10000 # Stop running after this many timesteps
-use_cuda: True # Use gpu by default unless it isn't available
+use_cuda: False # Use gpu by default unless it isn't available
 buffer_cpu_only: True # If true we won't keep all of the replay buffer in vram
 
 # --- Logging options ---
@@ -39,7 +39,7 @@ add_value_last_step: True
 
 # --- Agent parameters ---
 agent: "rnn" # Default rnn agent
-hidden_dim: 164 # Size of hidden state for default rnn agent
+hidden_dim: 134 # Size of hidden state for default rnn agent
 obs_agent_id: False # Include the agent's one_hot id in the observation
 obs_last_action: False # Include the agent's last action (one_hot) in the observation
 
