@@ -8,6 +8,7 @@ from types import SimpleNamespace as SN
 from utils.logging import Logger
 from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
+# TESTING
 
 from learners import REGISTRY as le_REGISTRY
 from runners import REGISTRY as r_REGISTRY
@@ -34,6 +35,7 @@ def run(_run, _config, _log):
     # configure tensorboard logger
     # unique_token = "{}__{}".format(args.name, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
+    a = 1
     try:
         map_name = _config["env_args"]["map_name"]
     except:
@@ -94,17 +96,19 @@ def run_sequential(args, logger):
 
     # Default/Base scheme
     scheme = {
-        "state": {"vshape": env_info["state_shape"]},
+        # "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
-        "avail_actions": {
-            "vshape": (env_info["n_actions"],),
-            "group": "agents",
-            "dtype": th.int,
-        },
+        # "avail_actions": {
+        #     "vshape": (env_info["n_actions"],),
+        #     "group": "agents",
+        #     "dtype": th.int,
+        # },
         "reward": {"vshape": (4,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
     }
+    print("OBS SHAPE:")
+    print(env_info["obs_shape"])
     groups = {"agents": args.n_agents}
     preprocess = {"actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])}
 
@@ -125,6 +129,8 @@ def run_sequential(args, logger):
 
     # Learner
     learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
+    print("LEARNER")
+    print(learner)
 
     if args.use_cuda:
         learner.cuda()
@@ -181,6 +187,8 @@ def run_sequential(args, logger):
 
     while runner.t_env <= args.t_max:
 
+        # If given 4 different learners, need to split the batch
+        # into 4 parts?
         # Run for a whole episode at a time
         episode_batch = runner.run(test_mode=False)
         buffer.insert_episode_batch(episode_batch)
@@ -198,7 +206,7 @@ def run_sequential(args, logger):
             learner.train(episode_sample, runner.t_env, episode)
 
         # Execute test runs once in a while
-        n_test_runs = max(1, args.test_nepisode // runner.batch_size)
+        n_test_runs = 50#max(1, args.test_nepisode // runner.batch_size)
         #print("N_REST_RUNS: ", n_test_runs)
         if (runner.t_env - last_test_T) / args.test_interval >= 1.0:
 
@@ -214,8 +222,11 @@ def run_sequential(args, logger):
             last_time = time.time()
 
             last_test_T = runner.t_env
-            for _ in range(n_test_runs):
-                runner.run(test_mode=True)
+            for x in range(n_test_runs):
+              if x == n_test_runs - 1:
+                runner.run(test_mode=True,log_results=True)
+              else:
+                runner.run(test_mode=True, log_results=False)
 
         if args.save_model and (
             runner.t_env - model_save_time >= args.save_model_interval
