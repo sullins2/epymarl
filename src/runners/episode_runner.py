@@ -77,31 +77,34 @@ class EpisodeRunner:
 
             if test_mode:
               pre_transition_data = {
-                # "state": [self.env.get_state_test()],
-                # "avail_actions": [self.env.get_avail_actions_test()],
+                "state": [self.env.get_state_test()],
+                "avail_actions": [self.env.get_avail_actions_test()],
                 "obs": [self.env.get_obs_test()]
               }
             else:
               pre_transition_data = {
-                  # "state": [self.env.get_state()],
-                  # "avail_actions": [self.env.get_avail_actions()],
+                  "state": [self.env.get_state()],
+                  "avail_actions": [self.env.get_avail_actions()],
                   "obs": [self.env.get_obs()]
               }
 
-            # print("PRE_TRANSITION_DATA: ", pre_transition_data)
+            # print("OBS:", self.env.get_obs())
+            # print(pre_transition_data)
 
             self.batch.update(pre_transition_data, ts=self.t)
 
             # Pass the entire batch of experiences up till now to the agents
             # Receive the actions for each agent at this timestep in a batch of size 1
             actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
-            # print("ACTIONS: ", actions)
+            # print(actions)
 
             if test_mode == True:
               reward, terminated, env_info, rewards = self.env.step_test(actions[0])
             else:
               reward, terminated, env_info, rewards = self.env.step(actions[0])
             
+            # for x in range(len(rewards)):
+            #   rewards[x] *= -1
             # print("REWARDS:", rewards)
             episode_return += reward
             # episode_return = 0.99*episode_return + reward
@@ -133,9 +136,9 @@ class EpisodeRunner:
             self.t += 1
 
         episode_other = sum(cumRew)
-        if test_mode:
-          print("EPISODE OTHER:")
-          print(episode_other)
+        # if test_mode:
+        #   print("EPISODE OTHER:")
+        #   print(episode_other)
             
         self.ret += [cumRew]
         #torch.Size([1, 101, 4])
@@ -144,42 +147,23 @@ class EpisodeRunner:
           for t in range(self.t):
             curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
-        # print("data.tranisition_data")
-        # print(self.batch.data.transition_data["reward"].size())
-        # print(self.batch.data.transition_data["reward"][0])
-
-        # print("CURREW:")
-        # print(curRew)
+        
         # set them all as curRew
         for t in range(self.t):
           for i in range(4):
             self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
 
-        # print("TRANS DATA")
-        # print(self.batch.data.transition_data)
-        # print("EPS DATA")
-        # print(self.batch.data.episode_data)
-        # print("BATCH.DATA")
-        # print(type(self.batch.data.transition_data["reward"]))
-        # print(self.batch.data.transition_data["reward"].size())
-
-        # now the total reward for time t is sum of all agents at time t
-        # for t in range(self.t):
-        #   value = 0
-        #   for i in range(4):
-        #     value += curRew[i][t]
-        #   self.batch.data.transition_data['reward'][0][t][0] = value
 
         if test_mode:
           last_data = {
-            # "state": [self.env.get_state_test()],
-            # "avail_actions": [self.env.get_avail_actions_test()],
+            "state": [self.env.get_state_test()],
+            "avail_actions": [self.env.get_avail_actions_test()],
             "obs": [self.env.get_obs_test()]
           }
         if test_mode == False:
           last_data = {
-              # "state": [self.env.get_state()],
-              # "avail_actions": [self.env.get_avail_actions()],
+              "state": [self.env.get_state()],
+              "avail_actions": [self.env.get_avail_actions()],
               "obs": [self.env.get_obs()]
           }
         self.batch.update(last_data, ts=self.t)
@@ -188,9 +172,7 @@ class EpisodeRunner:
         # Select actions in the last stored state
         actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
         self.batch.update({"actions": actions}, ts=self.t)
-        # print("ACTIONS")
-
-        #print(self.batch.data.transition_data['reward'])
+        
 
         cur_stats = self.test_stats if test_mode else self.train_stats
         cur_returns = self.test_returns if test_mode else self.train_returns
@@ -204,16 +186,24 @@ class EpisodeRunner:
 
         # cur_returns.append(episode_return)
         cur_returns.append(episode_other)
-        # if test_mode:
-        #   print("EP RETURN: ", episode_return)
 
         if test_mode and log_results:
-          p = self.ret
-          # print(p)
-          averages = [sum(column) / len(p) for column in zip(*p)]
-          sum_of_averages = sum(averages)
-          print("Sum of TEST:", sum_of_averages)
-          self.logger.log_stat("new_return", sum_of_averages, self.t_env)
+          r = [0,0,0,0]
+          for x in self.ret:
+            r[0] += x[0]
+            r[1] += x[1]
+            r[2] += x[2]
+            r[3] += x[3]
+          r[0] /= 50.0
+          r[1] /= 50.0
+          r[2] /= 50.0
+          r[3] /= 50.0
+          print(r, "SUM", sum(r))
+          # p = self.ret
+          # averages = [sum(column) / len(p) for column in zip(*p)]
+          # sum_of_averages = sum(averages)
+          # print("Sum of TEST:", sum_of_averages)
+          # self.logger.log_stat("new_return", sum_of_averages, self.t_env)
           self.ret = []
 
         if test_mode and (len(self.test_returns) == self.args.test_nepisode):
