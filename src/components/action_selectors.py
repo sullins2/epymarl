@@ -45,24 +45,32 @@ class EpsilonGreedyActionSelector():
         # Assuming agent_inputs is a batch of Q-Values for each agent bav
         self.epsilon = self.schedule.eval(t_env)
 
+        # if test_mode:
+          # print("AGENT INPUT")
+          # print(agent_inputs)
         if test_mode:
             # Greedy action selection only
             self.epsilon = self.args.evaluation_epsilon
+            # print("EPS")
+            # print(self.epsilon)
 
         # mask actions that are excluded from selection
         masked_q_values = agent_inputs.clone()
-        # masked_q_values[avail_actions == 0.0] = -float("inf")  # should never be selected!
+        masked_q_values[avail_actions == 0.0] = -float("inf")  # should never be selected!
 
-        avail_actions = th.tensor([[[1, 1, 1, 1, 1],
-                       [1, 1, 1, 1, 1],
-                       [1, 1, 1, 1, 1],
-                       [1, 1, 1, 1, 1]]], device='cpu', dtype=th.int32)
+        # avail_actions = th.tensor([[[1, 1, 1, 1, 1],
+        #                [1, 1, 1, 1, 1],
+        #                [1, 1, 1, 1, 1],
+        #                [1, 1, 1, 1, 1]]], device='cpu', dtype=th.int32)
 
         random_numbers = th.rand_like(agent_inputs[:, :, 0])
         pick_random = (random_numbers < self.epsilon).long()
         random_actions = Categorical(avail_actions.float()).sample().long()
 
         picked_actions = pick_random * random_actions + (1 - pick_random) * masked_q_values.max(dim=2)[1]
+        # if test_mode:
+        #   print("PICKED ACTION")
+        #   print(picked_actions)
         return picked_actions
 
 
