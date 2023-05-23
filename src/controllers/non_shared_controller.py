@@ -16,22 +16,24 @@ class NonSharedMAC:
 
     def select_actions(self, ep_batch, t_ep, t_env, bs=slice(None), test_mode=False):
         # Only select actions for the selected batch elements in bs
-        # avail_actions = ep_batch["avail_actions"][:, t_ep]
-        # print("AVA ACTIS")
-        # print(avail_actions)
+        avail_actions = ep_batch["avail_actions"][:, t_ep]
         agent_outputs = self.forward(ep_batch, t_ep, test_mode=test_mode)
-        # chosen_actions = self.action_selector.select_action(agent_outputs[bs], avail_actions[bs], t_env, test_mode=test_mode)
-        chosen_actions = self.action_selector.select_action(agent_outputs[bs], None, t_env, test_mode=test_mode)
+        chosen_actions = self.action_selector.select_action(agent_outputs[bs], avail_actions[bs], t_env, test_mode=test_mode)
+        # print(chosen_actions)
+        # chosen_actions = self.action_selector.select_action(agent_outputs[bs], None, t_env, test_mode=test_mode)
        
         return chosen_actions
 
     def forward(self, ep_batch, t, test_mode=False):
         agent_inputs = self._build_inputs(ep_batch, t)
-        # avail_actions = ep_batch["avail_actions"][:, t]
-        avail_actions = th.tensor([[[1, 1, 1, 1, 1],
-                       [1, 1, 1, 1, 1],
-                       [1, 1, 1, 1, 1],
-                       [1, 1, 1, 1, 1]]], device='cpu', dtype=th.int32)
+        avail_actions = ep_batch["avail_actions"][:, t]
+        # if test_mode:
+        #   print(agent_inputs)
+        #   print(avail_actions)
+        # avail_actions = th.tensor([[[1, 1, 1, 1, 1],
+        #                [1, 1, 1, 1, 1],
+        #                [1, 1, 1, 1, 1],
+        #                [1, 1, 1, 1, 1]]], device='cpu', dtype=th.int32)
 
         agent_outs, self.hidden_states = self.agent(agent_inputs, self.hidden_states)
 
@@ -77,6 +79,8 @@ class NonSharedMAC:
         bs = batch.batch_size
         inputs = []
         inputs.append(batch["obs"][:, t])  # b1av
+        # print("INTPU")
+        # print(inputs)
         if self.args.obs_last_action:
             if t == 0:
                 inputs.append(th.zeros_like(batch["actions_onehot"][:, t]))
