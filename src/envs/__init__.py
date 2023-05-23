@@ -44,6 +44,7 @@ class TimeLimit(GymTimeLimit):
                 if type(done) is list \
                 else not done
             done = len(observation) * [True]
+        # print(observation)
         return observation, reward, done, info
 
 
@@ -57,6 +58,8 @@ class FlattenObservation(ObservationWrapper):
 
         for sa_obs in env.observation_space:
             flatdim = spaces.flatdim(sa_obs)
+            ma_spaces += [sa_obs]
+            # print(ma_spaces)
             ma_spaces += [
                 spaces.Box(
                     low=-float("inf"),
@@ -66,15 +69,18 @@ class FlattenObservation(ObservationWrapper):
                 )
             ]
 
-        self.observation_space = spaces.Tuple(tuple(ma_spaces))
+        self.observation_space = env.observation_space # spaces.Tuple(tuple(ma_spaces))
+        print("HEREAAAA")
+        print(self.observation_space)
 
     def observation(self, observation):
-        return tuple(
-            [
-                spaces.flatten(obs_space, obs)
-                for obs_space, obs in zip(self.env.observation_space, observation)
-            ]
-        )
+        return observation
+        # return tuple(
+        #     [
+        #         spaces.flatten(obs_space, obs)
+        #         for obs_space, obs in zip(self.env.observation_space, observation)
+        #     ]
+        # )
 
 
 class _GymmaWrapper(MultiAgentEnv):
@@ -106,14 +112,20 @@ class _GymmaWrapper(MultiAgentEnv):
         self._info_test = None
 
         self.longest_action_space = max(self._env.action_space, key=lambda x: x.n)
-        self.longest_observation_space = max(
-            self._env.observation_space, key=lambda x: x.shape
-        )
-
+        print("EE")
+        print(self._env.observation_space)
+        shape = (len(self._env.observation_space), len(self._env.observation_space[0]))
+        print(shape)
+        self.longest_observation_space = 50 #self._env.observation_space[0].shape
+        print(self.longest_observation_space)
+        # self.longest_observation_space = max(
+        #     self._env.observation_space, key=lambda x: x.shape
+        # )
+        self.longest_observation_space_test = 50 #self._env.observation_space[0].shape
         self.longest_action_space_test = max(self._env_test.action_space, key=lambda x: x.n)
-        self.longest_observation_space_test = max(
-            self._env_test.observation_space, key=lambda x: x.shape
-        )
+        # self.longest_observation_space_test = max(
+        #     self._env_test.observation_space, key=lambda x: x.shape
+        # )
 
         self._seed = seed
         self._env.seed(self._seed)
@@ -124,15 +136,15 @@ class _GymmaWrapper(MultiAgentEnv):
         actions = [int(a) for a in actions]
         self._obs, reward, done, info = self._env.step(actions)
         # print("PP", self._obs)
-        self._obs = [
-            np.pad(
-                o,
-                (0, self.longest_observation_space.shape[0] - len(o)),
-                "constant",
-                constant_values=0,
-            )
-            for o in self._obs
-        ]
+        # self._obs = [
+        #     np.pad(
+        #         o,
+        #         (0, self.longest_observation_space.shape[0] - len(o)),
+        #         "constant",
+        #         constant_values=0,
+        #     )
+        #     for o in self._obs
+        # ]
 
         return float(sum(reward)), all(done), {}, reward
 
@@ -141,15 +153,15 @@ class _GymmaWrapper(MultiAgentEnv):
         actions = [int(a) for a in actions]
         self._obs_test, reward, done, info = self._env_test.step(actions)
         # print("AA", self._obs_test)
-        self._obs_test = [
-            np.pad(
-                o,
-                (0, self.longest_observation_space.shape[0] - len(o)),
-                "constant",
-                constant_values=0,
-            )
-            for o in self._obs_test
-        ]
+        # self._obs_test = [
+        #     np.pad(
+        #         o,
+        #         (0, self.longest_observation_space.shape[0] - len(o)),
+        #         "constant",
+        #         constant_values=0,
+        #     )
+        #     for o in self._obs_test
+        # ]
 
         return float(sum(reward)), all(done), {}, reward
 
@@ -171,11 +183,11 @@ class _GymmaWrapper(MultiAgentEnv):
 
     def get_obs_size(self):
         """ Returns the shape of the observation """
-        return flatdim(self.longest_observation_space)
+        return self.longest_observation_space #flatdim(self.longest_observation_space)
 
     def get_obs_size_test(self):
         """ Returns the shape of the observation """
-        return flatdim(self.longest_observation_space_test)
+        return self.longest_observation_space_test #flatdim(self.longest_observation_space_test)
 
     def get_state(self):
         return np.concatenate(self._obs, axis=0).astype(np.float32)
@@ -187,13 +199,13 @@ class _GymmaWrapper(MultiAgentEnv):
         """ Returns the shape of the state"""
         if hasattr(self.original_env, 'state_size'):
             return self.original_env.state_size
-        return self.n_agents * flatdim(self.longest_observation_space)
+        return self.n_agents * self.longest_observation_space # flatdim(self.longest_observation_space)
 
     def get_state_size_test(self):
         """ Returns the shape of the state"""
         if hasattr(self.test_env, 'state_size'):
             return self.test_env.state_size
-        return self.n_agents * flatdim(self.longest_observation_space_test)
+        return self.n_agents * self.longest_observation_space_test #flatdim(self.longest_observation_space_test)
 
     def get_avail_actions(self):
         avail_actions = []
@@ -234,29 +246,29 @@ class _GymmaWrapper(MultiAgentEnv):
     def reset(self):
         """ Returns initial observations and states"""
         self._obs = self._env.reset()
-        self._obs = [
-            np.pad(
-                o,
-                (0, self.longest_observation_space.shape[0] - len(o)),
-                "constant",
-                constant_values=0,
-            )
-            for o in self._obs
-        ]
+        # self._obs = [
+        #     np.pad(
+        #         o,
+        #         (0, self.longest_observation_space.shape[0] - len(o)),
+        #         "constant",
+        #         constant_values=0,
+        #     )
+        #     for o in self._obs
+        # ]
         return self.get_obs(), self.get_state()
 
     def reset_test(self):
         """ Returns initial observations and states"""
         self._obs_test = self._env_test.reset()
-        self._obs_test = [
-            np.pad(
-                o,
-                (0, self.longest_observation_space_test.shape[0] - len(o)),
-                "constant",
-                constant_values=0,
-            )
-            for o in self._obs_test
-        ]
+        # self._obs_test = [
+        #     np.pad(
+        #         o,
+        #         (0, self.longest_observation_space_test.shape[0] - len(o)),
+        #         "constant",
+        #         constant_values=0,
+        #     )
+        #     for o in self._obs_test
+        # ]
         return self.get_obs_test(), self.get_state_test()
 
     def render(self):
