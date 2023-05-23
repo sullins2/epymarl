@@ -123,6 +123,7 @@ class _GymmaWrapper(MultiAgentEnv):
         """ Returns reward, terminated, info """
         actions = [int(a) for a in actions]
         self._obs, reward, done, info = self._env.step(actions)
+        # print("PP", self._obs)
         self._obs = [
             np.pad(
                 o,
@@ -138,15 +139,16 @@ class _GymmaWrapper(MultiAgentEnv):
     def step_test(self, actions):
         """ Returns reward, terminated, info """
         actions = [int(a) for a in actions]
-        self._obs, reward, done, info = self._env_test.step(actions)
-        self._obs = [
+        self._obs_test, reward, done, info = self._env_test.step(actions)
+        # print("AA", self._obs_test)
+        self._obs_test = [
             np.pad(
                 o,
                 (0, self.longest_observation_space.shape[0] - len(o)),
                 "constant",
                 constant_values=0,
             )
-            for o in self._obs
+            for o in self._obs_test
         ]
 
         return float(sum(reward)), all(done), {}, reward
@@ -191,7 +193,7 @@ class _GymmaWrapper(MultiAgentEnv):
         """ Returns the shape of the state"""
         if hasattr(self.test_env, 'state_size'):
             return self.test_env.state_size
-        return self.n_agents * flatdim(self.longest_observation_space)
+        return self.n_agents * flatdim(self.longest_observation_space_test)
 
     def get_avail_actions(self):
         avail_actions = []
