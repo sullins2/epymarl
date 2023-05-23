@@ -94,14 +94,14 @@ def run_sequential(args, logger):
 
     # Default/Base scheme
     scheme = {
-        # "state": {"vshape": env_info["state_shape"]},
+        "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
-        # "avail_actions": {
-        #     "vshape": (env_info["n_actions"],),
-        #     "group": "agents",
-        #     "dtype": th.int,
-        # },
+        "avail_actions": {
+            "vshape": (env_info["n_actions"],),
+            "group": "agents",
+            "dtype": th.int,
+        },
         "reward": {"vshape": (4,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
     }
@@ -202,6 +202,21 @@ def run_sequential(args, logger):
                 episode_sample.to(args.device)
 
             learner.train(episode_sample, runner.t_env, episode)
+
+        # if buffer.can_sample(args.batch_size):
+            
+        #     for i in range(4):
+        #       episode_sample = buffer.sample(args.batch_size)
+
+        #       # Truncate batch to only filled timesteps
+        #       max_ep_t = episode_sample.max_t_filled()
+        #       episode_sample = episode_sample[:, :max_ep_t]
+
+        #       if episode_sample.device != args.device:
+        #         episode_sample.to(args.device)
+
+        #       learner.train(episode_sample, runner.t_env, episode)
+
 
         # Execute test runs once in a while
         n_test_runs = 50#max(1, args.test_nepisode // runner.batch_size)
