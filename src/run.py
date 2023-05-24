@@ -188,20 +188,20 @@ def run_sequential(args, logger):
         # If given 4 different learners, need to split the batch
         # into 4 parts?
         # Run for a whole episode at a time
-        episode_batch = runner.run(test_mode=False)
+        episode_batch = runner.run(buffer, args, learner, test_mode=False)
         buffer.insert_episode_batch(episode_batch)
 
-        if buffer.can_sample(args.batch_size):
-            episode_sample = buffer.sample(args.batch_size)
+        # if buffer.can_sample(args.batch_size):
+        #     episode_sample = buffer.sample(args.batch_size)
 
-            # Truncate batch to only filled timesteps
-            max_ep_t = episode_sample.max_t_filled()
-            episode_sample = episode_sample[:, :max_ep_t]
+        #     # Truncate batch to only filled timesteps
+        #     max_ep_t = episode_sample.max_t_filled()
+        #     episode_sample = episode_sample[:, :max_ep_t]
 
-            if episode_sample.device != args.device:
-                episode_sample.to(args.device)
+        #     if episode_sample.device != args.device:
+        #         episode_sample.to(args.device)
 
-            learner.train(episode_sample, runner.t_env, episode)
+        #     learner.train(episode_sample, runner.t_env, episode)
 
         # if buffer.can_sample(args.batch_size):
             
@@ -237,9 +237,9 @@ def run_sequential(args, logger):
             last_test_T = runner.t_env
             for x in range(n_test_runs):
               if x == n_test_runs - 1:
-                runner.run(test_mode=True,log_results=True)
+                runner.run(buffer, args, learner, test_mode=True,log_results=True)
               else:
-                runner.run(test_mode=True, log_results=False)
+                runner.run(buffer, args, learner, test_mode=True, log_results=False)
 
         if args.save_model and (
             runner.t_env - model_save_time >= args.save_model_interval
