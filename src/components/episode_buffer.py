@@ -1,5 +1,6 @@
 import torch as th
 import numpy as np
+import random
 from types import SimpleNamespace as SN
 
 
@@ -246,17 +247,19 @@ class ReplayBuffer(EpisodeBatch):
           # ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
           
           episode_sample_main = new_batch
-          for x in range(101):
+          for x in range(64):
             ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
             episode_sample = self[ep_ids] #self.sample(self.batch_size)
             # print(episode_sample.data.transition_data)
-            episode_sample_main.data.transition_data["reward"][0][x] =  episode_sample.data.transition_data["reward"][0][x]
-            episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][x]
-            episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][x]
-            episode_sample_main.data.transition_data["filled"][0][x] = episode_sample.data.transition_data["filled"][0][x]
-            episode_sample_main.data.transition_data["obs"][0][x] = episode_sample.data.transition_data["obs"][0][x]
-            episode_sample_main.data.transition_data["state"][0][x] = episode_sample.data.transition_data["state"][0][x]
-
+            y = random.randint(0, 100)
+            episode_sample_main.data.transition_data["reward"][0][x] =  episode_sample.data.transition_data["reward"][0][y]
+            episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][y]
+            episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][y]
+            episode_sample_main.data.transition_data["filled"][0][x] = episode_sample.data.transition_data["filled"][0][y]
+            episode_sample_main.data.transition_data["obs"][0][x] = episode_sample.data.transition_data["obs"][0][y]
+            episode_sample_main.data.transition_data["state"][0][x] = episode_sample.data.transition_data["state"][0][y]
+            episode_sample_main.data.transition_data["nextobs"][0][x] = episode_sample.data.transition_data["nextobs"][0][y]
+            
           # print("EPISODE SAMPLE MAIN")
           # print(episode_sample_main)
           return episode_sample_main
