@@ -73,7 +73,7 @@ class QLearner:
         target_mac_out = []
         self.target_mac.init_hidden(batch.batch_size)
         for t in range(batch.max_seq_length):
-            target_agent_outs = self.target_mac.forward(batch, t=t)
+            target_agent_outs = self.target_mac.forward(batch, t=t, nextobs=True)
             target_mac_out.append(target_agent_outs)
 
         # We don't need the first timesteps Q-Value estimate for calculating targets
