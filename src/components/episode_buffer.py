@@ -104,6 +104,8 @@ class EpisodeBatch:
                 v = th.tensor(np.array(v), dtype=dtype, device=self.device)
             self._check_safe_view(v, target[k][_slices])
             target[k][_slices] = v.view_as(target[k][_slices])
+            # print("RAR")
+            # print(target[k][_slices])
 
             if k in self.preprocess:
                 new_k = self.preprocess[k][0]
@@ -235,14 +237,41 @@ class ReplayBuffer(EpisodeBatch):
     def can_sample(self, batch_size):
         return self.episodes_in_buffer >= batch_size
 
-    def sample(self, batch_size):
+    def sample(self, batch_size, args, learner, t_env, new_batch):
         assert self.can_sample(batch_size)
         if self.episodes_in_buffer == batch_size:
             return self[:batch_size]
         else:
+           
+          # ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
+          
+          episode_sample_main = new_batch
+          for x in range(101):
+            ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
+            episode_sample = self[ep_ids] #self.sample(self.batch_size)
+            # print(episode_sample.data.transition_data)
+            episode_sample_main.data.transition_data["reward"][0][x] =  episode_sample.data.transition_data["reward"][0][x]
+            episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][x]
+            episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][x]
+            episode_sample_main.data.transition_data["filled"][0][x] = episode_sample.data.transition_data["filled"][0][x]
+            episode_sample_main.data.transition_data["obs"][0][x] = episode_sample.data.transition_data["obs"][0][x]
+            episode_sample_main.data.transition_data["state"][0][x] = episode_sample.data.transition_data["state"][0][x]
+
+          # print("EPISODE SAMPLE MAIN")
+          # print(episode_sample_main)
+          return episode_sample_main
+            # if episode_sample_main.device != args.device:
+            #     episode_sample_main.to(args.device)
+            
+            # learner.train(episode_sample_main, t_env, 0)
+
+
             # Uniform sampling only atm
-            ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
-            return self[ep_ids]
+            # THIS RETURNS A LIST OF 64 RANDOM NUMBERS
+            # ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
+            # return self[ep_ids]
+            # ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
+            # return self[ep_ids]
 
     def __repr__(self):
         return "ReplayBuffer. {}/{} episodes. Keys:{} Groups:{}".format(self.episodes_in_buffer,
