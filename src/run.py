@@ -189,7 +189,38 @@ def run_sequential(args, logger):
         # into 4 parts?
         # Run for a whole episode at a time
         episode_batch = runner.run(buffer, args, learner, test_mode=False)
+        # print(episode_batch["reward"])
         buffer.insert_episode_batch(episode_batch)
+        
+        # print("ARGS BATCH SIZE") 
+        # print(args.batch_size) 64
+        
+        # if buffer.can_sample(args.batch_size):
+          
+        #   episode_sample_main = buffer.sample(args.batch_size)
+        #   for x in range(101):
+        #     episode_sample = buffer.sample(args.batch_size)
+        #     episode_sample_main["reward"][x, :] =  episode_sample["reward"][x, :]
+        #     episode_sample_main["actions"][x, :] = episode_sample["actions"][x, :]
+        #     episode_sample_main["terminated"][x, :] = episode_sample["terminated"][x, :]
+        #     episode_sample_main["filled"][x, :] = episode_sample["filled"][x, :]
+        #     episode_sample_main["obs"][x, :] = episode_sample["obs"][x, :]
+        #     episode_sample_main["state"][x, :] = episode_sample["state"][x, :]
+
+        #   if episode_sample_main.device != args.device:
+        #       episode_sample_main.to(args.device)
+          
+        #   learner.train(episode_sample, runner.t_env, episode)
+
+        
+        
+        
+        #     max_ep_t = episode_sample.max_t_filled()
+        #     episode_sample_main[x, :max_ep_t] = episode_sample[x,:max_ep_t]
+            # print("This")
+            # print(episode_sample[0,:max_ep_t])
+
+
 
         # if buffer.can_sample(args.batch_size):
         #     episode_sample = buffer.sample(args.batch_size)
@@ -202,6 +233,8 @@ def run_sequential(args, logger):
         #         episode_sample.to(args.device)
 
         #     learner.train(episode_sample, runner.t_env, episode)
+
+
 
         # if buffer.can_sample(args.batch_size):
             
