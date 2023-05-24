@@ -24,8 +24,9 @@ class NonSharedMAC:
        
         return chosen_actions
 
-    def forward(self, ep_batch, t, test_mode=False):
-        agent_inputs = self._build_inputs(ep_batch, t)
+    def forward(self, ep_batch, t, test_mode=False, nextobs=False):
+        
+        agent_inputs = self._build_inputs(ep_batch, t, nextobs)
         avail_actions = ep_batch["avail_actions"][:, t]
         # if test_mode:
         #   print(agent_inputs)
@@ -73,14 +74,15 @@ class NonSharedMAC:
         # print("AGENT")
         # print(self.agent)
 
-    def _build_inputs(self, batch, t):
+    def _build_inputs(self, batch, t, nextobs=False):
         # Assumes homogenous agents with flat observations.
         # Other MACs might want to e.g. delegate building inputs to each agent
         bs = batch.batch_size
         inputs = []
-        inputs.append(batch["obs"][:, t])  # b1av
-        # print("INTPU")
-        # print(inputs)
+        if nextobs == False:
+          inputs.append(batch["obs"][:, t])  # b1av
+        else:
+          inputs.append(batch["nextobs"][:, t])
         if self.args.obs_last_action:
             if t == 0:
                 inputs.append(th.zeros_like(batch["actions_onehot"][:, t]))
@@ -90,6 +92,8 @@ class NonSharedMAC:
             inputs.append(th.eye(self.n_agents, device=batch.device).unsqueeze(0).expand(bs, -1, -1))
 
         inputs = th.cat([x.reshape(bs*self.n_agents, -1) for x in inputs], dim=1)
+        # print("INPUT")
+        # print(inputs)
         return inputs
 
     def _get_input_shape(self, scheme):
