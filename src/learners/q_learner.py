@@ -51,7 +51,7 @@ class QLearner:
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
-        # avail_actions = batch["avail_actions"]
+        avail_actions = batch["avail_actions"]
 
         if self.args.standardise_rewards:
             self.rew_ms.update(rewards)
@@ -60,6 +60,8 @@ class QLearner:
         # Calculate estimated Q-Values
         mac_out = []
         self.mac.init_hidden(batch.batch_size)
+        # print(batch.max_seq_length) #101
+        # print(batch)
         for t in range(batch.max_seq_length):
             agent_outs = self.mac.forward(batch, t=t)
             mac_out.append(agent_outs)
@@ -78,13 +80,13 @@ class QLearner:
         target_mac_out = th.stack(target_mac_out[1:], dim=1)  # Concat across time
 
         # Mask out unavailable actions
-        # target_mac_out[avail_actions[:, 1:] == 0] = -9999999
+        target_mac_out[avail_actions[:, 1:] == 0] = -9999999
 
         # Max over target Q-Values
         if self.args.double_q:
             # Get actions that maximise live Q (for double q-learning)
             mac_out_detach = mac_out.clone().detach()
-            # mac_out_detach[avail_actions == 0] = -9999999
+            mac_out_detach[avail_actions == 0] = -9999999
             cur_max_actions = mac_out_detach[:, 1:].max(dim=3, keepdim=True)[1]
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
         else:
