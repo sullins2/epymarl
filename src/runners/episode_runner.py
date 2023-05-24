@@ -61,6 +61,22 @@ class EpisodeRunner:
         self.env.reset_test()
         self.t = 0
 
+    # def lala(self):
+    #   self.test_batch = self.new_batch()
+
+    #   if test_mode == False:
+    #     if buffer.can_sample(args.batch_size):
+    #       episode_sample = buffer.sample(args.batch_size)
+
+    #       # Truncate batch to only filled timesteps
+    #       max_ep_t = episode_sample.max_t_filled()
+    #       episode_sample = episode_sample[:, :max_ep_t]
+
+    #       if episode_sample.device != args.device:
+    #         episode_sample.to(args.device)
+
+    #       learner.train(episode_sample, self.t_env, 0)#episode)
+
     def run(self, buffer, args, learner, test_mode=False, log_results=False):
         if test_mode == False:
           self.reset()
@@ -91,7 +107,7 @@ class EpisodeRunner:
 
             # print("OBS:", self.env.get_obs())
             # print("PRE")
-            # print(pre_transition_data)
+            # print(pre_transition_data['obs'])
 
             # if test_mode == False:
             self.batch.update(pre_transition_data, ts=self.t)
@@ -139,7 +155,8 @@ class EpisodeRunner:
 
             if test_mode == False:
               if buffer.can_sample(args.batch_size):
-                episode_sample = buffer.sample(args.batch_size)
+                new_batch = self.new_batch()
+                episode_sample = buffer.sample(args.batch_size, args, learner, self.t_env, new_batch)
 
                 # Truncate batch to only filled timesteps
                 max_ep_t = episode_sample.max_t_filled()
