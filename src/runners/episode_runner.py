@@ -61,7 +61,7 @@ class EpisodeRunner:
         self.env.reset_test()
         self.t = 0
 
-    def run(self, test_mode=False, log_results=False):
+    def run(self, buffer, args, learner, test_mode=False, log_results=False):
         if test_mode == False:
           self.reset()
         if test_mode == True:
@@ -90,8 +90,10 @@ class EpisodeRunner:
               }
 
             # print("OBS:", self.env.get_obs())
+            # print("PRE")
             # print(pre_transition_data)
 
+            # if test_mode == False:
             self.batch.update(pre_transition_data, ts=self.t)
 
             # Pass the entire batch of experiences up till now to the agents
@@ -132,7 +134,21 @@ class EpisodeRunner:
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
             }
 
+            # if test_mode == False:
             self.batch.update(post_transition_data, ts=self.t)
+
+            if test_mode == False:
+              if buffer.can_sample(args.batch_size):
+                episode_sample = buffer.sample(args.batch_size)
+
+                # Truncate batch to only filled timesteps
+                max_ep_t = episode_sample.max_t_filled()
+                episode_sample = episode_sample[:, :max_ep_t]
+
+                if episode_sample.device != args.device:
+                  episode_sample.to(args.device)
+
+                learner.train(episode_sample, self.t_env, 0)#episode)
 
             self.t += 1
 
@@ -149,6 +165,7 @@ class EpisodeRunner:
             curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         
+        # if test_mode == False:
         # set them all as curRew
         for t in range(self.t):
           for i in range(4):
@@ -167,11 +184,15 @@ class EpisodeRunner:
               "avail_actions": [self.env.get_avail_actions()],
               "obs": [self.env.get_obs()]
           }
+        
+        # if test_mode == False:
         self.batch.update(last_data, ts=self.t)
         # print("AFTER")
 
         # Select actions in the last stored state
         actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
+        
+        # if test_mode == False:
         self.batch.update({"actions": actions}, ts=self.t)
         
 
