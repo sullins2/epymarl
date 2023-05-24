@@ -200,6 +200,7 @@ class EpisodeRunner:
           r[2] /= 50.0
           r[3] /= 50.0
           print(r, "SUM", sum(r))
+          print("EPISODE OTHER: ", episode_other)
           # p = self.ret
           # averages = [sum(column) / len(p) for column in zip(*p)]
           # sum_of_averages = sum(averages)
