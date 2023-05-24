@@ -39,6 +39,10 @@ class EpisodeRunner:
     def setup(self, scheme, groups, preprocess, mac):
         self.new_batch = partial(EpisodeBatch, scheme, groups, self.batch_size, self.episode_limit + 1,
                                  preprocess=preprocess, device=self.args.device)
+        
+        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 64,
+                                 preprocess=preprocess, device=self.args.device)
+        
         self.mac = mac
 
     def get_env_info(self):
@@ -53,11 +57,13 @@ class EpisodeRunner:
 
     def reset(self):
         self.batch = self.new_batch()
+        self.batch64 = self.new_batch64()
         self.env.reset()
         self.t = 0
     
     def reset_test(self):
         self.batch = self.new_batch()
+        self.batch64 = self.new_batch64()
         self.env.reset_test()
         self.t = 0
 
@@ -148,6 +154,7 @@ class EpisodeRunner:
                 "actions": actions,
                 "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])],
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
+                "nextobs": [self.env.get_obs()]
             }
 
             # if test_mode == False:
@@ -155,7 +162,7 @@ class EpisodeRunner:
 
             if test_mode == False:
               if buffer.can_sample(args.batch_size):
-                new_batch = self.new_batch()
+                new_batch = self.new_batch64()
                 episode_sample = buffer.sample(args.batch_size, args, learner, self.t_env, new_batch)
 
                 # Truncate batch to only filled timesteps
