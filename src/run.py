@@ -191,6 +191,10 @@ def run_sequential(args, logger):
         # Run for a whole episode at a time
         episode_batch = runner.run(buffer, args, learner, test_mode=False)
         # print(episode_batch["reward"])
+        # print(episode_batch.data.transition_data["obs"])
+        # print(episode_batch.data.transition_data["nextobs"])
+
+
         buffer.insert_episode_batch(episode_batch)
         
         # print("ARGS BATCH SIZE") 
