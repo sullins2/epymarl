@@ -248,7 +248,7 @@ class ReplayBuffer(EpisodeBatch):
           
           episode_sample_main = new_batch
           # print("EPISODE SAMPLE BEFORE")
-          # print(episode_sample_main.data.transition_data["reward"])
+          # print(episode_sample_main.data.transition_data)
 
           for x in range(64):
             ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
@@ -263,9 +263,12 @@ class ReplayBuffer(EpisodeBatch):
             episode_sample_main.data.transition_data["obs"][0][x] = episode_sample.data.transition_data["obs"][0][y]
             episode_sample_main.data.transition_data["state"][0][x] = episode_sample.data.transition_data["state"][0][y]
             episode_sample_main.data.transition_data["nextobs"][0][x] = episode_sample.data.transition_data["nextobs"][0][y]
+            episode_sample_main.data.transition_data["avail_actions"][0][x] = episode_sample.data.transition_data["avail_actions"][0][y]
+            episode_sample_main.data.transition_data["actions_onehot"][0][x] = episode_sample.data.transition_data["actions_onehot"][0][y]
+
 
           # print("EPISODE SAMPLE AFTER")
-          # print(episode_sample_main.data.transition_data["reward"])  
+          # print(episode_sample_main.data.transition_data)  
           # print("EPISODE SAMPLE MAIN")
           # print(episode_sample_main)
           return episode_sample_main
