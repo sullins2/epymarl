@@ -62,6 +62,7 @@ class QLearner:
         self.mac.init_hidden(batch.batch_size)
         # print(batch.max_seq_length) #101
         # print(batch)
+        #print("MAX SQ FOR SECOND", batch.max_seq_length)
         for t in range(batch.max_seq_length):
             agent_outs = self.mac.forward(batch, t=t)
             mac_out.append(agent_outs)
@@ -72,15 +73,18 @@ class QLearner:
         # Calculate the Q-Values necessary for the target
         target_mac_out = []
         self.target_mac.init_hidden(batch.batch_size)
+        #print("MAX SQ FOR SECOND", batch.max_seq_length)
         for t in range(batch.max_seq_length):
             target_agent_outs = self.target_mac.forward(batch, t=t, nextobs=True)
             target_mac_out.append(target_agent_outs)
 
         # We don't need the first timesteps Q-Value estimate for calculating targets
         target_mac_out = th.stack(target_mac_out[1:], dim=1)  # Concat across time
+        # target_mac_out = th.stack(target_mac_out, dim=1)  # Concat across time
+
 
         # Mask out unavailable actions
-        target_mac_out[avail_actions[:, 1:] == 0] = -9999999
+        # target_mac_out[avail_actions[:, 1:] == 0] = -9999999
 
         # Max over target Q-Values
         if self.args.double_q:
