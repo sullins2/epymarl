@@ -44,13 +44,17 @@ class QLearner:
 
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         # Get the relevant quantities
-        rewards = batch["reward"][:, :-1]
-        # print("REWARDS:")
-        # print(rewards)
-        actions = batch["actions"][:, :-1]
-        terminated = batch["terminated"][:, :-1].float()
-        mask = batch["filled"][:, :-1].float()
-        mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
+        # rewards = batch["reward"][:, :-1]
+        # actions = batch["actions"][:, :-1]
+        # terminated = batch["terminated"][:, :-1].float()
+        # mask = batch["filled"][:, :-1].float()
+        # mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
+        # avail_actions = batch["avail_actions"]
+        rewards = batch["reward"][:, :]
+        actions = batch["actions"][:, :]
+        terminated = batch["terminated"][:, :].float()
+        mask = batch["filled"][:, :].float()
+        mask[:, :] = mask[:, :] * (1 - terminated[:, :])
         avail_actions = batch["avail_actions"]
 
         if self.args.standardise_rewards:
@@ -62,13 +66,20 @@ class QLearner:
         self.mac.init_hidden(batch.batch_size)
         # print(batch.max_seq_length) #101
         # print(batch)
-        #print("MAX SQ FOR SECOND", batch.max_seq_length)
+        # print("MAX SQ FOR SECOND", batch.max_seq_length)
         for t in range(batch.max_seq_length):
             agent_outs = self.mac.forward(batch, t=t)
             mac_out.append(agent_outs)
+        # print("MACOUT1")
+        # print(mac_out)
         mac_out = th.stack(mac_out, dim=1)  # Concat over time
+        # print("MACOUT2")
+        # print(mac_out)
+        # print(mac_out.shape())
         # Pick the Q-Values for the actions taken by each agent
-        chosen_action_qvals = th.gather(mac_out[:, :-1], dim=3, index=actions).squeeze(3)  # Remove the last dim
+        # chosen_action_qvals = th.gather(mac_out[:, :-1], dim=3, index=actions).squeeze(3)  # Remove the last dim
+        chosen_action_qvals = th.gather(mac_out[:, :], dim=3, index=actions).squeeze(3)  # Remove the last dim
+
 
         # Calculate the Q-Values necessary for the target
         target_mac_out = []
@@ -77,9 +88,17 @@ class QLearner:
         for t in range(batch.max_seq_length):
             target_agent_outs = self.target_mac.forward(batch, t=t, nextobs=True)
             target_mac_out.append(target_agent_outs)
+        # print("TARGETMACOUT")
+        # print(target_mac_out)
 
         # We don't need the first timesteps Q-Value estimate for calculating targets
-        target_mac_out = th.stack(target_mac_out[1:], dim=1)  # Concat across time
+        # target_mac_out = th.stack(target_mac_out[1:], dim=1)  # Concat across time
+        target_mac_out = th.stack(target_mac_out, dim=1)  # Concat across time
+        
+        # print("TARGETMACOUT2")
+        # print(target_mac_out)
+        # print(target_mac_out.shape())
+        
         # target_mac_out = th.stack(target_mac_out, dim=1)  # Concat across time
 
 
@@ -91,6 +110,7 @@ class QLearner:
             # Get actions that maximise live Q (for double q-learning)
             mac_out_detach = mac_out.clone().detach()
             mac_out_detach[avail_actions == 0] = -9999999
+            # TAKE OUT -1 IF ERRORING
             cur_max_actions = mac_out_detach[:, 1:].max(dim=3, keepdim=True)[1]
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
         else:
@@ -110,6 +130,8 @@ class QLearner:
         # print("OTHER:")
         # print(target_max_qvals.detach())
 
+        # print("TARGETMAXQVALS")
+        # print(target_max_qvals)
         targets = rewards + self.args.gamma * (1 - terminated) * target_max_qvals.detach()
         # print("TARGETS:")
         # print(targets)
