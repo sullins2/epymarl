@@ -3,6 +3,7 @@ import os
 import pprint
 import time
 import threading
+from numpy import argsort
 import torch as th
 from types import SimpleNamespace as SN
 from utils.logging import Logger
@@ -199,24 +200,22 @@ def run_sequential(args, logger):
         
         # print("ARGS BATCH SIZE") 
         # print(args.batch_size) 64
+          
         
         # if buffer.can_sample(args.batch_size):
-          
-        #   episode_sample_main = buffer.sample(args.batch_size)
-        #   for x in range(101):
-        #     episode_sample = buffer.sample(args.batch_size)
-        #     episode_sample_main["reward"][x, :] =  episode_sample["reward"][x, :]
-        #     episode_sample_main["actions"][x, :] = episode_sample["actions"][x, :]
-        #     episode_sample_main["terminated"][x, :] = episode_sample["terminated"][x, :]
-        #     episode_sample_main["filled"][x, :] = episode_sample["filled"][x, :]
-        #     episode_sample_main["obs"][x, :] = episode_sample["obs"][x, :]
-        #     episode_sample_main["state"][x, :] = episode_sample["state"][x, :]
+        #   new_batch = runner.new_batch64()
+        #   episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
+        #   if episode_sample != None:
 
-        #   if episode_sample_main.device != args.device:
-        #       episode_sample_main.to(args.device)
-          
-        #   learner.train(episode_sample, runner.t_env, episode)
+        #     # Truncate batch to only filled timesteps
+        #     max_ep_t = episode_sample.max_t_filled()
+        #     # print("MAXEPTTT", max_ep_t)
+        #     episode_sample = episode_sample[:, :max_ep_t]
 
+        #     if episode_sample.device != args.device:
+        #       episode_sample.to(args.device)
+
+        #     learner.train(episode_sample, runner.t_env, episode)
         
         
         
