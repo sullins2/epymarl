@@ -157,6 +157,8 @@ class EpisodeRunner:
                 "nextobs": [self.env.get_obs()]
             }
 
+            # print("POST")
+            # print(post_transition_data['nextobs'])
             # if test_mode == False:
             self.batch.update(post_transition_data, ts=self.t)
 
@@ -164,15 +166,17 @@ class EpisodeRunner:
               if buffer.can_sample(args.batch_size):
                 new_batch = self.new_batch64()
                 episode_sample = buffer.sample(args.batch_size, args, learner, self.t_env, new_batch)
+                if episode_sample != None:
 
-                # Truncate batch to only filled timesteps
-                max_ep_t = episode_sample.max_t_filled()
-                episode_sample = episode_sample[:, :max_ep_t]
+                  # Truncate batch to only filled timesteps
+                  max_ep_t = episode_sample.max_t_filled()
+                  # print("MAXEPTTT", max_ep_t)
+                  episode_sample = episode_sample[:, :max_ep_t]
 
-                if episode_sample.device != args.device:
-                  episode_sample.to(args.device)
+                  if episode_sample.device != args.device:
+                    episode_sample.to(args.device)
 
-                learner.train(episode_sample, self.t_env, 0)#episode)
+                  learner.train(episode_sample, self.t_env, 0)#episode)
 
             self.t += 1
 
