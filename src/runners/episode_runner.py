@@ -40,7 +40,7 @@ class EpisodeRunner:
         self.new_batch = partial(EpisodeBatch, scheme, groups, self.batch_size, self.episode_limit + 1,
                                  preprocess=preprocess, device=self.args.device)
         
-        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 64,
+        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 6400,
                                  preprocess=preprocess, device=self.args.device)
         
         self.mac = mac
@@ -178,23 +178,6 @@ class EpisodeRunner:
 
             #       learner.train(episode_sample, self.t_env, 0)#episode)
 
-
-            if test_mode == False:
-              if buffer.can_sample(args.batch_size):
-                new_batch = self.new_batch64()
-                episode_sample = buffer.sample(args.batch_size, args, learner, self.t_env, new_batch)
-                if episode_sample != None:
-
-                  # Truncate batch to only filled timesteps
-                  max_ep_t = episode_sample.max_t_filled()
-                  # print("MAXEPTTT", max_ep_t)
-                  episode_sample = episode_sample[:, :max_ep_t]
-
-                  if episode_sample.device != args.device:
-                    episode_sample.to(args.device)
-
-                  learner.train(episode_sample, self.t_env, 0)#episode)
-
             self.t += 1
 
         episode_other = sum(cumRew)
@@ -266,7 +249,8 @@ class EpisodeRunner:
           r[2] /= 50.0
           r[3] /= 50.0
           print(r, "SUM", sum(r))
-          print("EPISODE OTHER: ", episode_other)
+          self.logger.log_stat("sum", sum(r), self.t_env)
+          # print("EPISODE OTHER: ", episode_other)
           # p = self.ret
           # averages = [sum(column) / len(p) for column in zip(*p)]
           # sum_of_averages = sum(averages)
