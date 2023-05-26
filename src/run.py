@@ -107,8 +107,7 @@ def run_sequential(args, logger):
         "reward": {"vshape": (4,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
     }
-    print("OBS SHAPE:")
-    print(env_info["obs_shape"])
+    
     groups = {"agents": args.n_agents}
     preprocess = {"actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])}
 
@@ -129,8 +128,6 @@ def run_sequential(args, logger):
 
     # Learner
     learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
-    print("LEARNER")
-    print(learner)
 
     if args.use_cuda:
         learner.cuda()
@@ -185,84 +182,41 @@ def run_sequential(args, logger):
 
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 
-    # test
-    aaaaaaaaa = 1
     while runner.t_env <= args.t_max:
 
-        # If given 4 different learners, need to split the batch
-        # into 4 parts?
-        # Run for a whole episode at a time
+        # Play an entire episode and get batch of experiences
         episode_batch = runner.run(buffer, args, learner, test_mode=False)
-        # print(episode_batch["reward"])
-        # print(episode_batch.data.transition_data["obs"])
-        # print(episode_batch.data.transition_data["nextobs"])
-
-
+        
+        # Insert batch into buffer
         buffer.insert_episode_batch(episode_batch)
         
-        # print("ARGS BATCH SIZE") 
-        # print(args.batch_size) 64
-          
-        
+        # Train on large number of experiences
+        # Before: Would sample n episodes and train on them
+        # Now: Creates a temp batch of random experiences
         if episode > 500 and buffer.can_sample(500): #args.batch_size):
-          for x in range(1):
-            # if x % 1 == 0:
-            #   print("Learning:", x, " runner.tenv:", runner.t_env)
-            new_batch = runner.new_batch64()
-            episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
-            if episode_sample != None:
+          
+          # TODO: make this able to be set from here?
+          # Create new (empty) batch of some size
+          new_batch = runner.new_batch64()
+          # Fill empty new_batch with random experiences
+          episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
+          
+          if episode_sample != None:
 
-              # Truncate batch to only filled timesteps
-              max_ep_t = episode_sample.max_t_filled()
-              # print("MAXEPTTT", max_ep_t)
-              episode_sample = episode_sample[:, :max_ep_t]
+            # Truncate batch to only filled timesteps
+            max_ep_t = episode_sample.max_t_filled()
+            episode_sample = episode_sample[:, :max_ep_t]
 
-              if episode_sample.device != args.device:
-                episode_sample.to(args.device)
+            if episode_sample.device != args.device:
+              episode_sample.to(args.device)
 
-              learner.train(episode_sample, runner.t_env, episode)
+            learner.train(episode_sample, runner.t_env, episode)
         
-        
-        
-        #     max_ep_t = episode_sample.max_t_filled()
-        #     episode_sample_main[x, :max_ep_t] = episode_sample[x,:max_ep_t]
-            # print("This")
-            # print(episode_sample[0,:max_ep_t])
-
-
-
-        # if buffer.can_sample(args.batch_size):
-        #     episode_sample = buffer.sample(args.batch_size)
-
-        #     # Truncate batch to only filled timesteps
-        #     max_ep_t = episode_sample.max_t_filled()
-        #     episode_sample = episode_sample[:, :max_ep_t]
-
-        #     if episode_sample.device != args.device:
-        #         episode_sample.to(args.device)
-
-        #     learner.train(episode_sample, runner.t_env, episode)
-
-
-
-        # if buffer.can_sample(args.batch_size):
-            
-        #     for i in range(4):
-        #       episode_sample = buffer.sample(args.batch_size)
-
-        #       # Truncate batch to only filled timesteps
-        #       max_ep_t = episode_sample.max_t_filled()
-        #       episode_sample = episode_sample[:, :max_ep_t]
-
-        #       if episode_sample.device != args.device:
-        #         episode_sample.to(args.device)
-
-        #       learner.train(episode_sample, runner.t_env, episode)
-
 
         # Execute test runs once in a while
-        n_test_runs = 50#max(1, args.test_nepisode // runner.batch_size)
-        #print("N_REST_RUNS: ", n_test_runs)
+        # Hardcoded to 50 for beer game
+        n_test_runs = 50 #max(1, args.test_nepisode // runner.batch_size)
+      
         if (runner.t_env - last_test_T) / args.test_interval >= 1.0:
 
             logger.console_logger.info(
@@ -277,6 +231,8 @@ def run_sequential(args, logger):
             last_time = time.time()
 
             last_test_T = runner.t_env
+
+            # On last test episode, let know to log result of test runs
             for x in range(n_test_runs):
               if x == n_test_runs - 1:
                 runner.run(buffer, args, learner, test_mode=True,log_results=True)
