@@ -185,6 +185,8 @@ def run_sequential(args, logger):
 
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 
+    # test
+    aaaaaaaaa = 1
     while runner.t_env <= args.t_max:
 
         # If given 4 different learners, need to split the batch
