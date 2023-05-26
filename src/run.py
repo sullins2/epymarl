@@ -202,7 +202,7 @@ def run_sequential(args, logger):
         # print(args.batch_size) 64
           
         
-        if episode > 30: #buffer.can_sample(2000): #args.batch_size):
+        if episode > 500 and buffer.can_sample(500): #args.batch_size):
           for x in range(1):
             # if x % 1 == 0:
             #   print("Learning:", x, " runner.tenv:", runner.t_env)
