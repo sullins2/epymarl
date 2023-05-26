@@ -19,23 +19,12 @@ class NonSharedMAC:
         avail_actions = ep_batch["avail_actions"][:, t_ep]
         agent_outputs = self.forward(ep_batch, t_ep, test_mode=test_mode)
         chosen_actions = self.action_selector.select_action(agent_outputs[bs], avail_actions[bs], t_env, test_mode=test_mode)
-        # print(chosen_actions)
-        # chosen_actions = self.action_selector.select_action(agent_outputs[bs], None, t_env, test_mode=test_mode)
-       
         return chosen_actions
 
     def forward(self, ep_batch, t, test_mode=False, nextobs=False):
         
         agent_inputs = self._build_inputs(ep_batch, t, nextobs)
         avail_actions = ep_batch["avail_actions"][:, t]
-        # if test_mode:
-        #   print(agent_inputs)
-        #   print(avail_actions)
-        # avail_actions = th.tensor([[[1, 1, 1, 1, 1],
-        #                [1, 1, 1, 1, 1],
-        #                [1, 1, 1, 1, 1],
-        #                [1, 1, 1, 1, 1]]], device='cpu', dtype=th.int32)
-
         agent_outs, self.hidden_states = self.agent(agent_inputs, self.hidden_states)
 
         # Softmax the agent outputs if they're policy logits
@@ -68,17 +57,14 @@ class NonSharedMAC:
         self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
 
     def _build_agents(self, input_shape):
-        # print("ARGS AGENT:")
-        # print(self.args.agent)
         self.agent = agent_REGISTRY[self.args.agent](input_shape, self.args)
-        # print("AGENT")
-        # print(self.agent)
-
+        
     def _build_inputs(self, batch, t, nextobs=False):
         # Assumes homogenous agents with flat observations.
         # Other MACs might want to e.g. delegate building inputs to each agent
         bs = batch.batch_size
         inputs = []
+        # Need Q-Values for obs sometimes, nextobs sometimes
         if nextobs == False:
           inputs.append(batch["obs"][:, t])  # b1av
         else:
@@ -92,8 +78,6 @@ class NonSharedMAC:
             inputs.append(th.eye(self.n_agents, device=batch.device).unsqueeze(0).expand(bs, -1, -1))
 
         inputs = th.cat([x.reshape(bs*self.n_agents, -1) for x in inputs], dim=1)
-        # print("INPUT")
-        # print(inputs)
         return inputs
 
     def _get_input_shape(self, scheme):
