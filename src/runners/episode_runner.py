@@ -145,19 +145,23 @@ class EpisodeRunner:
 
             self.t += 1
 
+        # This is only the last episode, meaningless as a stat below
         episode_other = sum(cumRew)
-            
+
+        # Add final cumulative reward to list for later    
         self.ret += [cumRew]
-        totalRew = sum(cumRew) + 0.1
+
+        # Applying reward shaping
+        totalRew = sum(cumRew) + 0.1 #0.1 is from original paper
         for i in range(4):
           for t in range(self.t):
             curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
-        
         # set them all as curRew
         for t in range(self.t):
           for i in range(4):
             self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
+
 
 
         if test_mode:
@@ -176,6 +180,8 @@ class EpisodeRunner:
         self.batch.update(last_data, ts=self.t)
         
         # Select actions in the last stored state
+        # This is because if there was a time limit imposed
+        #   the last one might not be a terminal
         actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
         
         self.batch.update({"actions": actions}, ts=self.t)
@@ -191,21 +197,23 @@ class EpisodeRunner:
         if not test_mode:
             self.t_env += self.t
 
+        # Again, this is a useless state
         cur_returns.append(episode_other)
 
+        # Calculate the average performance of the 50 test episodes
         if test_mode and log_results:
-          r = [0,0,0,0]
+          avg = [0,0,0,0]
           for x in self.ret:
-            r[0] += x[0]
-            r[1] += x[1]
-            r[2] += x[2]
-            r[3] += x[3]
-          r[0] /= 50.0
-          r[1] /= 50.0
-          r[2] /= 50.0
-          r[3] /= 50.0
-          print(r, "SUM", sum(r))
-          self.logger.log_stat("sum", sum(r), self.t_env)
+            avg[0] += x[0]
+            avg[1] += x[1]
+            avg[2] += x[2]
+            avg[3] += x[3]
+          avg[0] /= 50.0
+          avg[1] /= 50.0
+          avg[2] /= 50.0
+          avg[3] /= 50.0
+          print(r, "SUM", sum(avg))
+          self.logger.log_stat("sum", sum(avg), self.t_env)
           self.ret = []
 
         if test_mode and (len(self.test_returns) == self.args.test_nepisode):
