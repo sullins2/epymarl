@@ -44,7 +44,6 @@ class TimeLimit(GymTimeLimit):
                 if type(done) is list \
                 else not done
             done = len(observation) * [True]
-        # print(observation)
         return observation, reward, done, info
 
 
@@ -59,7 +58,6 @@ class FlattenObservation(ObservationWrapper):
         for sa_obs in env.observation_space:
             flatdim = spaces.flatdim(sa_obs)
             ma_spaces += [sa_obs]
-            # print(ma_spaces)
             ma_spaces += [
                 spaces.Box(
                     low=-float("inf"),
@@ -69,11 +67,13 @@ class FlattenObservation(ObservationWrapper):
                 )
             ]
 
+        # Don't flatten observation space
+        # AKA don't turn it into one hot encoding (TOO BIG, not what orig does)
         self.observation_space = env.observation_space # spaces.Tuple(tuple(ma_spaces))
-        print("HEREAAAA")
-        print(self.observation_space)
+        
 
     def observation(self, observation):
+        # Don't flatten observation AKA one-hot encode it
         return observation
         # return tuple(
         #     [
@@ -89,13 +89,12 @@ class _GymmaWrapper(MultiAgentEnv):
         self.original_env = gym.make(f"{key}", **kwargs)
         kwargs["test_mode"] = True
         self.test_env = gym.make(f"{key}", **kwargs)
-        # print("STUFF")
-        # print(key, "KWARGS: ", kwargs)
-        # print(self.original_env)
+      
         self.episode_limit = time_limit
         self._env = TimeLimit(self.original_env, max_episode_steps=time_limit)
         self._env = FlattenObservation(self._env)
 
+        # Best workaround is having a different gym env for testing
         self._env_test = TimeLimit(self.test_env, max_episode_steps=time_limit)
         self._env_test = FlattenObservation(self._env_test)
 
@@ -112,10 +111,12 @@ class _GymmaWrapper(MultiAgentEnv):
         self._info_test = None
 
         self.longest_action_space = max(self._env.action_space, key=lambda x: x.n)
-        print("EE")
-        print(self._env.observation_space)
+        
         shape = (len(self._env.observation_space), len(self._env.observation_space[0]))
-        print(shape)
+        
+        
+        # Here we are manually setting the longest obs space
+        # They are the same for each agent and are 5*m
         self.longest_observation_space = 50 #self._env.observation_space[0].shape
         print(self.longest_observation_space)
         # self.longest_observation_space = max(
@@ -135,7 +136,7 @@ class _GymmaWrapper(MultiAgentEnv):
         """ Returns reward, terminated, info """
         actions = [int(a) for a in actions]
         self._obs, reward, done, info = self._env.step(actions)
-        # print("PP", self._obs)
+        # Don't pad the obs
         # self._obs = [
         #     np.pad(
         #         o,
@@ -152,7 +153,7 @@ class _GymmaWrapper(MultiAgentEnv):
         """ Returns reward, terminated, info """
         actions = [int(a) for a in actions]
         self._obs_test, reward, done, info = self._env_test.step(actions)
-        # print("AA", self._obs_test)
+        # Don't pad the obs
         # self._obs_test = [
         #     np.pad(
         #         o,
