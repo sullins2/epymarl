@@ -105,8 +105,6 @@ class EpisodeBatch:
                 v = th.tensor(np.array(v), dtype=dtype, device=self.device)
             self._check_safe_view(v, target[k][_slices])
             target[k][_slices] = v.view_as(target[k][_slices])
-            # print("RAR")
-            # print(target[k][_slices])
 
             if k in self.preprocess:
                 new_k = self.preprocess[k][0]
@@ -216,8 +214,6 @@ class ReplayBuffer(EpisodeBatch):
         self.episodes_in_buffer = 0
 
     def insert_episode_batch(self, ep_batch):
-        # print("EP BATCH")
-        # print(ep_batch)
         if self.buffer_index + ep_batch.batch_size <= self.buffer_size:
             self.update(ep_batch.data.transition_data,
                         slice(self.buffer_index, self.buffer_index + ep_batch.batch_size),
@@ -244,18 +240,18 @@ class ReplayBuffer(EpisodeBatch):
             return None #self[:batch_size]
         else:
            
-          # ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
           
           episode_sample_main = new_batch
-          # print("EPISODE SAMPLE BEFORE")
-          # print(episode_sample_main.data.transition_data)
-
-          for x in range(6400):
+          
+          # This is the amount of experiences in the training batch
+          for x in range(1400):
+            # Pick a random episode
             ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
             episode_sample = self[ep_ids] #self.sample(self.batch_size)
             
-            # print(episode_sample.data.transition_data)
-            y = random.randint(0, 100)
+            # Pick a random time step in the episode 
+            #  and set the empty batch equal to it
+            y = random.randint(0, 30)
             episode_sample_main.data.transition_data["reward"][0][x] =  episode_sample.data.transition_data["reward"][0][y]
             episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][y]
             episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][y]
@@ -267,17 +263,10 @@ class ReplayBuffer(EpisodeBatch):
             episode_sample_main.data.transition_data["actions_onehot"][0][x] = episode_sample.data.transition_data["actions_onehot"][0][y]
 
 
-          # print("EPISODE SAMPLE AFTER")
-          # print(episode_sample_main.data.transition_data)  
-          # print("EPISODE SAMPLE MAIN")
-          # print(episode_sample_main)
+         
           return episode_sample_main
-            # if episode_sample_main.device != args.device:
-            #     episode_sample_main.to(args.device)
             
-            # learner.train(episode_sample_main, t_env, 0)
-
-
+            # FROM BEFORE
             # Uniform sampling only atm
             # THIS RETURNS A LIST OF 64 RANDOM NUMBERS
             # ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
@@ -290,4 +279,3 @@ class ReplayBuffer(EpisodeBatch):
                                                                         self.buffer_size,
                                                                         self.scheme.keys(),
                                                                         self.groups.keys())
-
