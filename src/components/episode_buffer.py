@@ -250,7 +250,7 @@ class ReplayBuffer(EpisodeBatch):
           # print("EPISODE SAMPLE BEFORE")
           # print(episode_sample_main.data.transition_data)
 
-          for x in range(64):
+          for x in range(6400):
             ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
             episode_sample = self[ep_ids] #self.sample(self.batch_size)
             
