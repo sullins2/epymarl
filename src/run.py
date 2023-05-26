@@ -202,20 +202,23 @@ def run_sequential(args, logger):
         # print(args.batch_size) 64
           
         
-        # if buffer.can_sample(args.batch_size):
-        #   new_batch = runner.new_batch64()
-        #   episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
-        #   if episode_sample != None:
+        if episode > 30: #buffer.can_sample(2000): #args.batch_size):
+          for x in range(1):
+            # if x % 1 == 0:
+            #   print("Learning:", x, " runner.tenv:", runner.t_env)
+            new_batch = runner.new_batch64()
+            episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
+            if episode_sample != None:
 
-        #     # Truncate batch to only filled timesteps
-        #     max_ep_t = episode_sample.max_t_filled()
-        #     # print("MAXEPTTT", max_ep_t)
-        #     episode_sample = episode_sample[:, :max_ep_t]
+              # Truncate batch to only filled timesteps
+              max_ep_t = episode_sample.max_t_filled()
+              # print("MAXEPTTT", max_ep_t)
+              episode_sample = episode_sample[:, :max_ep_t]
 
-        #     if episode_sample.device != args.device:
-        #       episode_sample.to(args.device)
+              if episode_sample.device != args.device:
+                episode_sample.to(args.device)
 
-        #     learner.train(episode_sample, runner.t_env, episode)
+              learner.train(episode_sample, runner.t_env, episode)
         
         
         
