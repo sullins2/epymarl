@@ -202,7 +202,7 @@ def run_sequential(args, logger):
           
           # TODO: make this able to be set from here?
           # Create new (empty) batch of some size
-          new_batch = None#runner.new_batch64()
+          new_batch = runner.new_batch64()
           # Fill empty new_batch with random experiences
           episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
           
