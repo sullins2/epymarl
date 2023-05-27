@@ -244,14 +244,14 @@ class ReplayBuffer(EpisodeBatch):
           episode_sample_main = new_batch
           
           # This is the amount of experiences in the training batch
-          for x in range(1400):
+          for x in range(400):
             # Pick a random episode
             ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
             episode_sample = self[ep_ids] #self.sample(self.batch_size)
             
             # Pick a random time step in the episode 
             #  and set the empty batch equal to it
-            y = random.randint(0, 30)
+            y = random.randint(0, 15)
             episode_sample_main.data.transition_data["reward"][0][x] =  episode_sample.data.transition_data["reward"][0][y]
             episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][y]
             episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][y]
