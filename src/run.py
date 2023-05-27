@@ -7,6 +7,7 @@ from numpy import argsort
 import torch as th
 from types import SimpleNamespace as SN
 from utils.logging import Logger
+import logging
 from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
 
@@ -27,6 +28,7 @@ def run(_run, _config, _log):
 
     # setup loggers
     logger = Logger(_log)
+
 
     _log.info("Experiment Parameters:")
     experiment_params = pprint.pformat(_config, indent=4, width=1)
@@ -182,6 +184,8 @@ def run_sequential(args, logger):
 
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 
+    # torch.backends.cudnn.benchmark = True
+
     while runner.t_env <= args.t_max:
 
         # Play an entire episode and get batch of experiences
@@ -193,11 +197,12 @@ def run_sequential(args, logger):
         # Train on large number of experiences
         # Before: Would sample n episodes and train on them
         # Now: Creates a temp batch of random experiences
+        # Maybe try if > 500 and episode % 20 == 0, then use very large batch
         if episode > 500 and buffer.can_sample(500): #args.batch_size):
           
           # TODO: make this able to be set from here?
           # Create new (empty) batch of some size
-          new_batch = runner.new_batch64()
+          new_batch = None#runner.new_batch64()
           # Fill empty new_batch with random experiences
           episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
           
