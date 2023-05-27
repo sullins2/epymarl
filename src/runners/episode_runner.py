@@ -9,6 +9,7 @@ class EpisodeRunner:
     def __init__(self, args, logger):
         self.args = args
         self.logger = logger
+        
         self.batch_size = self.args.batch_size_run
         assert self.batch_size == 1
 
@@ -35,7 +36,7 @@ class EpisodeRunner:
         self.new_batch = partial(EpisodeBatch, scheme, groups, self.batch_size, self.episode_limit + 1,
                                  preprocess=preprocess, device=self.args.device)
         
-        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 400,
+        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 6400,
                                  preprocess=preprocess, device=self.args.device)
         
         self.mac = mac
@@ -76,6 +77,7 @@ class EpisodeRunner:
         episode_other = 0
         while not terminated:
 
+            # print("T:", self.t, " TESTMODE:", test_mode)
             if test_mode:
               pre_transition_data = {
                 "state": [self.env.get_state_test()],
@@ -149,7 +151,8 @@ class EpisodeRunner:
         episode_other = sum(cumRew)
 
         # Add final cumulative reward to list for later    
-        self.ret += [cumRew]
+        result1 = [cumRew[0],cumRew[1],cumRew[2],cumRew[3]]
+        self.ret += [result1]
 
         # Applying reward shaping
         totalRew = sum(cumRew) + 0.1 #0.1 is from original paper
@@ -200,21 +203,7 @@ class EpisodeRunner:
         # Again, this is a useless state
         cur_returns.append(episode_other)
 
-        # Calculate the average performance of the 50 test episodes
-        if test_mode and log_results:
-          avg = [0,0,0,0]
-          for x in self.ret:
-            avg[0] += x[0]
-            avg[1] += x[1]
-            avg[2] += x[2]
-            avg[3] += x[3]
-          avg[0] /= 50.0
-          avg[1] /= 50.0
-          avg[2] /= 50.0
-          avg[3] /= 50.0
-          print(avg, "SUM", sum(avg))
-          self.logger.log_stat("sum", sum(avg), self.t_env)
-          self.ret = []
+        
 
         if test_mode and (len(self.test_returns) == self.args.test_nepisode):
             self._log(cur_returns, cur_stats, log_prefix)
@@ -223,6 +212,27 @@ class EpisodeRunner:
             if hasattr(self.mac.action_selector, "epsilon"):
                 self.logger.log_stat("epsilon", self.mac.action_selector.epsilon, self.t_env)
             self.log_train_stats_t = self.t_env
+       
+        # Calculate the average performance of the 50 test episodes
+        if test_mode and log_results:
+          self.test_returns = []
+          avg = [0,0,0,0]
+          final = 0
+          for x in self.ret:
+            final += sum(x)
+            # avg[0] += x[0]
+            # avg[1] += x[1]
+            # avg[2] += x[2]
+            # avg[3] += x[3]
+          # avg[0] /= 50.0
+          # avg[1] /= 50.0
+          # avg[2] /= 50.0
+          # avg[3] /= 50.0
+          avg = final / 50.0
+          # print("FINAL:", avg)
+          self.logger.log_stat("sum", avg, self.t_env)
+          self.ret = []
+        
         return self.batch
 
     def _log(self, returns, stats, prefix):
