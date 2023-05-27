@@ -35,7 +35,7 @@ class EpisodeRunner:
         self.new_batch = partial(EpisodeBatch, scheme, groups, self.batch_size, self.episode_limit + 1,
                                  preprocess=preprocess, device=self.args.device)
         
-        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 6400,
+        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 400,
                                  preprocess=preprocess, device=self.args.device)
         
         self.mac = mac
