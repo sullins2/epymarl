@@ -265,7 +265,7 @@ class ReplayBuffer(EpisodeBatch):
 
 
          
-          # return episode_sample_main
+          return episode_sample_main
             
             # FROM BEFORE
             # Uniform sampling only atm
