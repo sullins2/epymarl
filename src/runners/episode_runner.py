@@ -212,7 +212,7 @@ class EpisodeRunner:
           avg[1] /= 50.0
           avg[2] /= 50.0
           avg[3] /= 50.0
-          print(r, "SUM", sum(avg))
+          print(avg, "SUM", sum(avg))
           self.logger.log_stat("sum", sum(avg), self.t_env)
           self.ret = []
 
