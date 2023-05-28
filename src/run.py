@@ -10,6 +10,7 @@ from utils.logging import Logger
 import logging
 from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
+import random
 
 from learners import REGISTRY as le_REGISTRY
 from runners import REGISTRY as r_REGISTRY
@@ -202,20 +203,46 @@ def run_sequential(args, logger):
           
           # TODO: make this able to be set from here?
           # Create new (empty) batch of some size
-          new_batch = runner.new_batch64()
-          # Fill empty new_batch with random experiences
-          episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
-          
-          if episode_sample != None:
+          # r = runner.get_sample()
+          # print("SAMPLE:")
+          # print(r)
+          # print("TO DEVICE")
+        # def to(self, device):
+        # for k, v in self.data.transition_data.items():
+        #     self.data.transition_data[k] = v.to(device)
+        # for k, v in self.data.episode_data.items():
+        #     self.data.episode_data[k] = v.to(device)
+        # self.device = device
 
-            # Truncate batch to only filled timesteps
-            max_ep_t = episode_sample.max_t_filled()
-            episode_sample = episode_sample[:, :max_ep_t]
+          # For 10 times,
+          #   Get 32 episodes from buffer
+          #   Train on a random continuous 5 steps from those episodes
+          # Each iteration does 32*5 and there are 10 of them = 1600
+          # If after each action we did an episode as a batch
+          # that would be 40*40 = 1600
+          # So this is equal to that but mixes it up more
+          for _ in range(20):
+            new_batch = None #runner.new_batch64()
+            # Fill empty new_batch with random experiences
+            # Gets 32
+            episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
+            
+            if episode_sample != None:
 
-            if episode_sample.device != args.device:
-              episode_sample.to(args.device)
+              # Truncate batch to only filled timesteps
+              max_ep_t = episode_sample.max_t_filled()
+              episode_sample = episode_sample[:, :max_ep_t]
 
-            learner.train(episode_sample, runner.t_env, episode)
+              # random_indices = random.sample(range(40), k=10)
+
+              start_index = random.randint(0, 40 - 5)
+              # Selecting the corresponding columns
+              episode_sample = episode_sample[:, start_index:start_index+5]
+
+              if episode_sample.device != args.device:
+                episode_sample.to(args.device)
+
+              learner.train(episode_sample, runner.t_env, episode)
         
 
         # Execute test runs once in a while
