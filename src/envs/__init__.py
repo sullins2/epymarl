@@ -117,12 +117,12 @@ class _GymmaWrapper(MultiAgentEnv):
         
         # Here we are manually setting the longest obs space
         # They are the same for each agent and are 5*m
-        self.longest_observation_space = 5 #self._env.observation_space[0].shape
+        self.longest_observation_space = 50 #self._env.observation_space[0].shape
         print(self.longest_observation_space)
         # self.longest_observation_space = max(
         #     self._env.observation_space, key=lambda x: x.shape
         # )
-        self.longest_observation_space_test = 5 #self._env.observation_space[0].shape
+        self.longest_observation_space_test = 50 #self._env.observation_space[0].shape
         self.longest_action_space_test = max(self._env_test.action_space, key=lambda x: x.n)
         # self.longest_observation_space_test = max(
         #     self._env_test.observation_space, key=lambda x: x.shape
