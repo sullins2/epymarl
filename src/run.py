@@ -221,7 +221,7 @@ def run_sequential(args, logger):
           # If after each action we did an episode as a batch
           # that would be 40*40 = 1600
           # So this is equal to that but mixes it up more
-          for _ in range(20):
+          for _ in range(40):
             new_batch = None #runner.new_batch64()
             # Fill empty new_batch with random experiences
             # Gets 32
@@ -235,9 +235,9 @@ def run_sequential(args, logger):
 
               # random_indices = random.sample(range(40), k=10)
 
-              start_index = random.randint(0, 40 - 5)
+              start_index = random.randint(0, 100 - 10)
               # Selecting the corresponding columns
-              episode_sample = episode_sample[:, start_index:start_index+5]
+              episode_sample = episode_sample[:, start_index:start_index+10]
 
               if episode_sample.device != args.device:
                 episode_sample.to(args.device)
