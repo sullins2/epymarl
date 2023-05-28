@@ -235,7 +235,7 @@ def run_sequential(args, logger):
 
               # random_indices = random.sample(range(40), k=10)
 
-              start_index = random.randint(0, 100 - 10)
+              start_index = random.randint(0, 40 - 10)
               # Selecting the corresponding columns
               episode_sample = episode_sample[:, start_index:start_index+10]
 
