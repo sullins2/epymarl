@@ -2,7 +2,8 @@ from envs import REGISTRY as env_REGISTRY
 from functools import partial
 from components.episode_buffer import EpisodeBatch
 import numpy as np
-
+import random
+import torch as th
 
 class EpisodeRunner:
 
@@ -29,6 +30,8 @@ class EpisodeRunner:
 
         self.ret = []
 
+        self.exp_replay = [[]]
+
         # Log the first run
         self.log_train_stats_t = -1000000
 
@@ -36,7 +39,7 @@ class EpisodeRunner:
         self.new_batch = partial(EpisodeBatch, scheme, groups, self.batch_size, self.episode_limit + 1,
                                  preprocess=preprocess, device=self.args.device)
         
-        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 6400,
+        self.new_batch64 = partial(EpisodeBatch, scheme, groups, self.batch_size, 64,
                                  preprocess=preprocess, device=self.args.device)
         
         self.mac = mac
@@ -128,6 +131,13 @@ class EpisodeRunner:
 
             self.batch.update(post_transition_data, ts=self.t)
 
+
+            # er_reward = th.zeros((1, 1, 4), dtype=th.float32, device=self.args.device)
+            # print("ER")
+            # print(er_reward)
+            # self.exp_replay[0].append([(rewards[0],rewards[1],rewards[2],rewards[3])])
+            
+            
             # FROM WHEN TRAINING DURING EPISODE
             # if test_mode == False:
             #   if buffer.can_sample(args.batch_size):
@@ -158,7 +168,7 @@ class EpisodeRunner:
         totalRew = sum(cumRew) + 0.1 #0.1 is from original paper
         for i in range(4):
           for t in range(self.t):
-            curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
+            curRew[i][t] += (20.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         # set them all as curRew
         for t in range(self.t):
@@ -245,8 +255,11 @@ class EpisodeRunner:
                 self.logger.log_stat(prefix + k + "_mean" , v/stats["n_episodes"], self.t_env)
         stats.clear()
 
+    def get_sample(self):
+      minibatch = random.sample(self.exp_replay[0], 2)
+      return [minibatch]
+
     def fill_gamma(self):
       self.gamma = [1.0,0.99,0.9801,0.970299,0.96059601,0.9509900498999999,0.941480149401,0.9320653479069899,0.9227446944279201,0.9135172474836408,0.9043820750088044,0.8953382542587164,0.8863848717161292,0.8775210229989678,0.8687458127689782,0.8600583546412884,0.8514577710948755,0.8429431933839268,0.8345137614500875,0.8261686238355866,0.8179069375972308,0.8097278682212584,0.8016305895390459,0.7936142836436554,0.7856781408072188,0.7778213593991467,0.7700431458051551,0.7623427143471035,0.7547192872036326,0.7471720943315961,0.7397003733882802,0.7323033696543975,0.7249803359578534,0.7177305325982749,0.7105532272722921,0.7034476949995692,0.6964132180495735,0.6894490858690777,0.682554595010387,0.6757290490602831,0.6689717585696803,0.6622820409839835,0.6556592205741436,0.6491026283684022,0.6426116020847181,0.6361854860638709,0.6298236312032323,0.6235253948912,0.617290140942288,0.611117239532865,0.6050060671375364,0.598956006466161,0.5929664464014994,0.5870367819374844,0.5811664141181095,0.5753547499769285,0.5696012024771592,0.5639051904523875,0.5582661385478637,0.5526834771623851,0.5471566423907612,0.5416850759668536,0.536268225207185,0.5309055429551132,0.525596487525562,0.5203405226503064,0.5151371174238033,0.5099857462495653,0.5048858887870696,0.4998370298991989,0.49483865960020695,0.4898902730042049,0.48499137027416284,0.4801414565714212,0.47534004200570695,0.4705866415856499,0.46588077516979337,0.46122196741809546,0.4566097477439145,0.45204365026647536,0.4475232137638106,0.4430479816261725,0.43861750180991077,0.43423132679181164,0.4298890135238935,0.4255901233886546,0.421334222154768,0.41712087993322033,0.41294967113388814,0.40882017442254925,0.4047319726783238,0.40068465295154054,0.3966778064220251,0.39271102835780486,0.3887839180742268,0.38489607889348454,0.38104711810454966,0.37723664692350417,0.37346428045426916,0.36972963764972644,0.3660323412732292,0.3623720178604969,]
-
 
 
