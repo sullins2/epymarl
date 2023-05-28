@@ -74,6 +74,14 @@ class EpisodeBatch:
                 self.data.episode_data[field_key] = th.zeros((batch_size, *shape), dtype=dtype, device=self.device)
             else:
                 self.data.transition_data[field_key] = th.zeros((batch_size, max_seq_length, *shape), dtype=dtype, device=self.device)
+                # if field_key == "reward":
+                #   print("BS")
+                #   print(batch_size)
+                #   print("SHAPE")
+                #   print(*shape)
+                #   print(dtype)
+                #   print(self.device)
+                #   print(self.data.transition_data[field_key])
 
     def extend(self, scheme, groups=None):
         self._setup_data(scheme, self.groups if groups is None else groups, self.batch_size, self.max_seq_length)
@@ -239,33 +247,38 @@ class ReplayBuffer(EpisodeBatch):
         if self.episodes_in_buffer == batch_size:
           return None #self[:batch_size]
         else: 
-#           ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
+          ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
           # print("BATCH SIZE:", batch_size)
-#           return self[ep_ids]
-          episode_sample_main = new_batch
+          return self[ep_ids]
+         
+          
+          
+          # episode_sample_main = new_batch
+          
           
           # # This is the amount of experiences in the training batch
-          for x in range(6400):
+          # for x in range(10):
           #   # Pick a random episode
-            ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
-            episode_sample = self[ep_ids] #self.sample(self.batch_size)
+          #   ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
+          #   episode_sample = self[ep_ids] #self.sample(self.batch_size)
             
           #   # Pick a random time step in the episode 
           #   #  and set the empty batch equal to it
-            y = random.randint(0, 40)
-            episode_sample_main.data.transition_data["reward"][0][x] =  episode_sample.data.transition_data["reward"][0][y]
-            episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][y]
-            episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][y]
-            episode_sample_main.data.transition_data["filled"][0][x] = episode_sample.data.transition_data["filled"][0][y]
-            episode_sample_main.data.transition_data["obs"][0][x] = episode_sample.data.transition_data["obs"][0][y]
-            episode_sample_main.data.transition_data["state"][0][x] = episode_sample.data.transition_data["state"][0][y]
-            episode_sample_main.data.transition_data["nextobs"][0][x] = episode_sample.data.transition_data["nextobs"][0][y]
-            episode_sample_main.data.transition_data["avail_actions"][0][x] = episode_sample.data.transition_data["avail_actions"][0][y]
-            episode_sample_main.data.transition_data["actions_onehot"][0][x] = episode_sample.data.transition_data["actions_onehot"][0][y]
+          #   y = random.randint(0, 40)
+            
+          #   episode_sample_main.data.transition_data["reward"][0][x] =  episode_sample.data.transition_data["reward"][0][y]
+          #   episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][y]
+          #   episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][y]
+          #   episode_sample_main.data.transition_data["filled"][0][x] = episode_sample.data.transition_data["filled"][0][y]
+          #   episode_sample_main.data.transition_data["obs"][0][x] = episode_sample.data.transition_data["obs"][0][y]
+          #   episode_sample_main.data.transition_data["state"][0][x] = episode_sample.data.transition_data["state"][0][y]
+          #   episode_sample_main.data.transition_data["nextobs"][0][x] = episode_sample.data.transition_data["nextobs"][0][y]
+          #   episode_sample_main.data.transition_data["avail_actions"][0][x] = episode_sample.data.transition_data["avail_actions"][0][y]
+          #   episode_sample_main.data.transition_data["actions_onehot"][0][x] = episode_sample.data.transition_data["actions_onehot"][0][y]
 
 
          
-          return episode_sample_main
+          # return episode_sample_main
             
             # FROM BEFORE
             # Uniform sampling only atm
