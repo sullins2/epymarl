@@ -45,23 +45,20 @@ class QLearner:
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         # Get the relevant quantities
         # This is for EPISODE training
-        # rewards = batch["reward"][:, :-1]
-        # actions = batch["actions"][:, :-1]
-        # terminated = batch["terminated"][:, :-1].float()
-        # mask = batch["filled"][:, :-1].float()
-        # mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
-        # avail_actions = batch["avail_actions"]
-
-        # This is for RANDOM EXPERIENCE training
-        rewards = batch["reward"][:, :]
-        # print("REWARDS")
-        # print(rewards)
-        # x += 1
-        actions = batch["actions"][:, :]
-        terminated = batch["terminated"][:, :].float()
-        mask = batch["filled"][:, :].float()
-        mask[:, :] = mask[:, :] * (1 - terminated[:, :])
+        rewards = batch["reward"][:, :-1]
+        actions = batch["actions"][:, :-1]
+        terminated = batch["terminated"][:, :-1].float()
+        mask = batch["filled"][:, :-1].float()
+        mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
         avail_actions = batch["avail_actions"]
+
+        # # This is for RANDOM EXPERIENCE training
+        # rewards = batch["reward"][:, :]
+        # actions = batch["actions"][:, :]
+        # terminated = batch["terminated"][:, :].float()
+        # mask = batch["filled"][:, :].float()
+        # mask[:, :] = mask[:, :] * (1 - terminated[:, :])
+        # avail_actions = batch["avail_actions"]
 
         if self.args.standardise_rewards:
             self.rew_ms.update(rewards)
@@ -77,8 +74,8 @@ class QLearner:
         
         # Pick the Q-Values for the actions taken by each agent
         # This is for EPISODE training
-        # chosen_action_qvals = th.gather(mac_out[:, :-1], dim=3, index=actions).squeeze(3)  # Remove the last dim
-        chosen_action_qvals = th.gather(mac_out[:, :], dim=3, index=actions).squeeze(3)  # Don't remove last dim
+        chosen_action_qvals = th.gather(mac_out[:, :-1], dim=3, index=actions).squeeze(3)  # Remove the last dim
+        # chosen_action_qvals = th.gather(mac_out[:, :], dim=3, index=actions).squeeze(3)  # Don't remove last dim
 
 
         # Calculate the Q-Values necessary for the target
@@ -91,8 +88,8 @@ class QLearner:
 
         # We don't need the first timesteps Q-Value estimate for calculating targets
         # This is for EPISODE training
-        # target_mac_out = th.stack(target_mac_out[1:], dim=1)  # Concat across time
-        target_mac_out = th.stack(target_mac_out, dim=1)  # Concat across time
+        target_mac_out = th.stack(target_mac_out[1:], dim=1)  # Concat across time
+        # target_mac_out = th.stack(target_mac_out, dim=1)  # Concat across time
         
         
 
