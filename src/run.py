@@ -190,7 +190,7 @@ def run_sequential(args, logger):
     while runner.t_env <= args.t_max:
 
         # Play an entire episode and get batch of experiences
-        episode_batch = runner.run(buffer, args, learner, test_mode=False)
+        episode_batch = runner.run(buffer, args, learner, episode, test_mode=False)
         
         # Insert batch into buffer
         buffer.insert_episode_batch(episode_batch)
@@ -221,26 +221,20 @@ def run_sequential(args, logger):
           # If after each action we did an episode as a batch
           # that would be 40*40 = 1600
           # So this is equal to that but mixes it up more
-          for _ in range(40):
+          
+          for _ in range(10):
             new_batch = None #runner.new_batch64()
-            # Fill empty new_batch with random experiences
-            # Gets 32
             episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
-            
+          
             if episode_sample != None:
 
               # Truncate batch to only filled timesteps
               max_ep_t = episode_sample.max_t_filled()
               episode_sample = episode_sample[:, :max_ep_t]
 
-              # random_indices = random.sample(range(40), k=10)
-
-              start_index = random.randint(0, 40 - 10)
-              # Selecting the corresponding columns
-              episode_sample = episode_sample[:, start_index:start_index+10]
-
               if episode_sample.device != args.device:
                 episode_sample.to(args.device)
+              
 
               learner.train(episode_sample, runner.t_env, episode)
         
@@ -267,9 +261,9 @@ def run_sequential(args, logger):
             # On last test episode, let know to log result of test runs
             for x in range(n_test_runs):
               if x == n_test_runs - 1:
-                runner.run(buffer, args, learner, test_mode=True,log_results=True)
+                runner.run(buffer, args, learner, episode, test_mode=True,log_results=True)
               else:
-                runner.run(buffer, args, learner, test_mode=True, log_results=False)
+                runner.run(buffer, args, learner, episode, test_mode=True, log_results=False)
 
         if args.save_model and (
             runner.t_env - model_save_time >= args.save_model_interval
