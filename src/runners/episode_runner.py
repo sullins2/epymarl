@@ -65,7 +65,7 @@ class EpisodeRunner:
         self.env.reset_test()
         self.t = 0
 
-    def run(self, buffer, args, learner, test_mode=False, log_results=False):
+    def run(self, buffer, args, learner, episode, test_mode=False, log_results=False):
         if test_mode == False:
           self.reset()
         if test_mode == True:
@@ -137,6 +137,22 @@ class EpisodeRunner:
             # print(er_reward)
             # self.exp_replay[0].append([(rewards[0],rewards[1],rewards[2],rewards[3])])
             
+            # if episode > 500 and test_mode == False:
+            #   for _ in range(7):
+            #     new_batch = None #runner.new_batch64()
+            #     episode_sample = buffer.sample(args.batch_size, args, learner, self.t_env, new_batch)
+                
+            #     if episode_sample != None:
+
+            #       # Truncate batch to only filled timesteps
+            #       max_ep_t = episode_sample.max_t_filled()
+            #       episode_sample = episode_sample[:, :max_ep_t]
+
+            #       if episode_sample.device != args.device:
+            #         episode_sample.to(args.device)
+                  
+
+            #       learner.train(episode_sample, self.t_env, 0)
             
             # FROM WHEN TRAINING DURING EPISODE
             # if test_mode == False:
