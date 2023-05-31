@@ -2,6 +2,7 @@ import torch as th
 import numpy as np
 import random
 from types import SimpleNamespace as SN
+import copy
 
 
 class EpisodeBatch:
@@ -138,6 +139,7 @@ class EpisodeBatch:
                 return self.data.transition_data[item]
             else:
                 raise ValueError
+            # print("HERE1")
         elif isinstance(item, tuple) and all([isinstance(it, str) for it in item]):
             new_data = self._new_data_sn()
             for key in item:
@@ -153,9 +155,12 @@ class EpisodeBatch:
             new_groups = {self.scheme[key]["group"]: self.groups[self.scheme[key]["group"]]
                           for key in item if "group" in self.scheme[key]}
             ret = EpisodeBatch(new_scheme, new_groups, self.batch_size, self.max_seq_length, data=new_data, device=self.device)
+            # print("HERE2")
             return ret
         else:
             item = self._parse_slices(item)
+            # print("ITEM")
+            # print(item)
             new_data = self._new_data_sn()
             for k, v in self.data.transition_data.items():
                 new_data.transition_data[k] = v[item]
@@ -248,8 +253,43 @@ class ReplayBuffer(EpisodeBatch):
           return None #self[:batch_size]
         else: 
           ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
-          # print("BATCH SIZE:", batch_size)
           return self[ep_ids]
+
+          # vv = copy.deepcopy(self[ep_ids])#.clone()
+
+          # # new_data = self._new_data_sn()
+          # # new_data.data.transition_data = vv.data.tran
+          # vv.data.transition_data["reward"] = vv.data.transition_data["reward"][:, :2]
+          # vv.data.transition_data["actions"] = vv.data.transition_data["actions"][:, :2]
+          # vv.data.transition_data["terminated"] = vv.data.transition_data["terminated"][:, :2]
+          # vv.data.transition_data["filled"] = vv.data.transition_data["filled"][:, :2]
+          # vv.data.transition_data["obs"] = vv.data.transition_data["obs"][:, :2]
+          # vv.data.transition_data["state"] = vv.data.transition_data["state"][:, :2]
+          # vv.data.transition_data["nextobs"] = vv.data.transition_data["nextobs"][:, :2]
+          # vv.data.transition_data["avail_actions"] = vv.data.transition_data["avail_actions"][:, :2]
+          # vv.data.transition_data["actions_onehot"] = vv.data.transition_data["actions_onehot"][:, :2]
+
+          # return vv
+
+          #   episode_sample_main.data.transition_data["actions"][0][x] = episode_sample.data.transition_data["actions"][0][y]
+          #   episode_sample_main.data.transition_data["terminated"][0][x] = episode_sample.data.transition_data["terminated"][0][y]
+          #   episode_sample_main.data.transition_data["filled"][0][x] = episode_sample.data.transition_data["filled"][0][y]
+          #   episode_sample_main.data.transition_data["obs"][0][x] = episode_sample.data.transition_data["obs"][0][y]
+          #   episode_sample_main.data.transition_data["state"][0][x] = episode_sample.data.transition_data["state"][0][y]
+          #   episode_sample_main.data.transition_data["nextobs"][0][x] = episode_sample.data.transition_data["nextobs"][0][y]
+          #   episode_sample_main.data.transition_data["avail_actions"][0][x] = episode_sample.data.transition_data["avail_actions"][0][y]
+          #   episode_sample_main.data.transition_data["actions_onehot"][0][x] = episode_sample.data.transition_data["actions_onehot"][0][y]
+
+
+
+          # print("TD")
+          # print(vv.data.transition_data["reward"])
+          # print("SLIVE")
+          # print(vv.data.transition_data["reward"][:, :2])
+          
+
+
+          # return self[ep_ids]
          
           
           
@@ -287,6 +327,26 @@ class ReplayBuffer(EpisodeBatch):
             # return self[ep_ids]
             # ep_ids = np.random.choice(self.episodes_in_buffer, 1, replace=False)
             # return self[ep_ids]
+
+    def new_batch(self):
+      ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
+          
+      return self[ep_ids]
+         
+      for b in self[ep_ids]:
+        new_data = self._new_data_sn()      
+        for k, v in self.data.transition_data.items():
+            new_data.transition_data[k] = v[:, s:e]
+        # for k, v in self.data.episode_data.items():
+        #     new_data.episode_data[k] = v[item[0]]
+
+            # Update the scheme to only have the requested keys
+            new_scheme = {key: self.scheme[key] for key in item}
+            new_groups = {self.scheme[key]["group"]: self.groups[self.scheme[key]["group"]]
+                          for key in item if "group" in self.scheme[key]}
+            ret = EpisodeBatch(new_scheme, new_groups, self.batch_size, self.max_seq_length, data=new_data, device=self.device)
+            # print("HERE2")
+            return ret
 
     def __repr__(self):
         return "ReplayBuffer. {}/{} episodes. Keys:{} Groups:{}".format(self.episodes_in_buffer,
