@@ -11,6 +11,7 @@ import logging
 from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
 import random
+import pickle
 
 from learners import REGISTRY as le_REGISTRY
 from runners import REGISTRY as r_REGISTRY
@@ -114,7 +115,11 @@ def run_sequential(args, logger):
     groups = {"agents": args.n_agents}
     preprocess = {"actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])}
 
-    buffer = ReplayBuffer(
+    if args.load_buffer != "":
+      with open('buffer.pkl', 'rb') as file:
+        buffer = pickle.load(file)
+    else:
+      buffer = ReplayBuffer(
         scheme,
         groups,
         args.buffer_size,
@@ -280,6 +285,9 @@ def run_sequential(args, logger):
             # learner should handle saving/loading -- delegate actor save/load to mac,
             # use appropriate filenames to do critics, optimizer states
             learner.save_models(save_path)
+
+            with open('buffer.pkl', 'wb') as file:
+              pickle.dump(buffer, file)
 
         episode += args.batch_size_run
 
