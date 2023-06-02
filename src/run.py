@@ -99,15 +99,15 @@ def run_sequential(args, logger):
 
     # Default/Base scheme
     scheme = {
-        "state": {"vshape": env_info["state_shape"]},
+        # "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-        "nextobs": {"vshape": env_info["obs_shape"], "group": "agents"},
+        # "nextobs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
-        "avail_actions": {
-            "vshape": (env_info["n_actions"],),
-            "group": "agents",
-            "dtype": th.int,
-        },
+        # "avail_actions": {
+        #     "vshape": (env_info["n_actions"],),
+        #     "group": "agents",
+        #     "dtype": th.int,
+        # },
         "reward": {"vshape": (4,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
     }
@@ -115,7 +115,7 @@ def run_sequential(args, logger):
     groups = {"agents": args.n_agents}
     preprocess = {"actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])}
 
-    if args.load_buffer != "":
+    if args.load_buffer == "":
       with open('buffer.pkl', 'rb') as file:
         buffer = pickle.load(file)
     else:
