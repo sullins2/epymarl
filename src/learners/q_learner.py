@@ -50,7 +50,7 @@ class QLearner:
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
-        avail_actions = batch["avail_actions"]
+        # avail_actions = batch["avail_actions"]
 
         # # This is for RANDOM EXPERIENCE training
         # rewards = batch["reward"][:, :]
@@ -101,7 +101,7 @@ class QLearner:
         if self.args.double_q:
             # Get actions that maximise live Q (for double q-learning)
             mac_out_detach = mac_out.clone().detach()
-            mac_out_detach[avail_actions == 0] = -9999999
+            # mac_out_detach[avail_actions == 0] = -9999999
             # TAKE OUT :1 IF ERRORING
             cur_max_actions = mac_out_detach[:, 1:].max(dim=3, keepdim=True)[1]
             target_max_qvals = th.gather(target_mac_out, 3, cur_max_actions).squeeze(3)
