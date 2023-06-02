@@ -83,14 +83,14 @@ class EpisodeRunner:
             # print("T:", self.t, " TESTMODE:", test_mode)
             if test_mode:
               pre_transition_data = {
-                "state": [self.env.get_state_test()],
-                "avail_actions": [self.env.get_avail_actions_test()],
+                # "state": [self.env.get_state_test()],
+                # "avail_actions": [self.env.get_avail_actions_test()],
                 "obs": [self.env.get_obs_test()]
               }
             else:
               pre_transition_data = {
-                  "state": [self.env.get_state()],
-                  "avail_actions": [self.env.get_avail_actions()],
+                  # "state": [self.env.get_state()],
+                  # "avail_actions": [self.env.get_avail_actions()],
                   "obs": [self.env.get_obs()]
               }
 
@@ -126,7 +126,7 @@ class EpisodeRunner:
                 "actions": actions,
                 "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])],
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
-                "nextobs": [self.env.get_obs()]
+                # "nextobs": [self.env.get_obs()]
             }
 
             self.batch.update(post_transition_data, ts=self.t)
@@ -195,14 +195,14 @@ class EpisodeRunner:
 
         if test_mode:
           last_data = {
-            "state": [self.env.get_state_test()],
-            "avail_actions": [self.env.get_avail_actions_test()],
+            # "state": [self.env.get_state_test()],
+            # "avail_actions": [self.env.get_avail_actions_test()],
             "obs": [self.env.get_obs_test()]
           }
         if test_mode == False:
           last_data = {
-              "state": [self.env.get_state()],
-              "avail_actions": [self.env.get_avail_actions()],
+              # "state": [self.env.get_state()],
+              # "avail_actions": [self.env.get_avail_actions()],
               "obs": [self.env.get_obs()]
           }
         
