@@ -115,9 +115,15 @@ def run_sequential(args, logger):
     groups = {"agents": args.n_agents}
     preprocess = {"actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])}
 
-    if args.load_buffer == "":
-      with open('buffer.pkl', 'rb') as file:
-        buffer = pickle.load(file)
+    if args.load_buffer != "":
+      
+      try:
+        with open('/content/buffer.pkl', 'rb') as file:
+          buffer = pickle.load(file)
+        episode = buffer.episodes_in_buffer
+      except (pickle.UnpicklingError, FileNotFoundError) as e:
+        print("Error occurred while loading the pickled object:", e)
+      
     else:
       buffer = ReplayBuffer(
         scheme,
@@ -127,6 +133,7 @@ def run_sequential(args, logger):
         preprocess=preprocess,
         device="cpu" if args.buffer_cpu_only else args.device,
     )
+      episode = 0
 
     # Setup multiagent controller here
     mac = mac_REGISTRY[args.mac](buffer.scheme, groups, args)
@@ -171,16 +178,16 @@ def run_sequential(args, logger):
         learner.load_models(model_path)
         runner.t_env = timestep_to_load
 
-        if args.evaluate or args.save_replay:
-            runner.log_train_stats_t = runner.t_env
-            evaluate_sequential(args, runner)
-            logger.log_stat("episode", runner.t_env, runner.t_env)
-            logger.print_recent_stats()
-            logger.console_logger.info("Finished Evaluation")
-            return
+        # if args.evaluate or args.save_replay:
+        #     runner.log_train_stats_t = runner.t_env
+        #     evaluate_sequential(args, runner)
+        #     logger.log_stat("episode", runner.t_env, runner.t_env)
+        #     logger.print_recent_stats()
+        #     logger.console_logger.info("Finished Evaluation")
+        #     return
 
     # start training
-    episode = 0
+    # episode = 0 # Set about for if loaded buffer
     last_test_T = -args.test_interval - 1
     last_log_T = 0
     model_save_time = 0
@@ -270,9 +277,13 @@ def run_sequential(args, logger):
               else:
                 runner.run(buffer, args, learner, episode, test_mode=True, log_results=False)
 
+        # if args.save_model and (
+        #     runner.t_env - model_save_time >= args.save_model_interval
+        #     or model_save_time == 0
+        # ):
         if args.save_model and (
             runner.t_env - model_save_time >= args.save_model_interval
-            or model_save_time == 0
+    
         ):
             model_save_time = runner.t_env
             save_path = os.path.join(
