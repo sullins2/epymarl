@@ -4,7 +4,7 @@ import random
 from types import SimpleNamespace as SN
 import copy
 
-
+# TEST
 class EpisodeBatch:
     def __init__(self,
                  scheme,
