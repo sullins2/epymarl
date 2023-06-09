@@ -99,7 +99,7 @@ def run_sequential(args, logger):
 
     # Default/Base scheme
     scheme = {
-        # "state": {"vshape": env_info["state_shape"]},
+        "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
         # "nextobs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
@@ -108,7 +108,7 @@ def run_sequential(args, logger):
         #     "group": "agents",
         #     "dtype": th.int,
         # },
-        "reward": {"vshape": (4,)},
+        "reward": {"vshape": (1,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
     }
     
@@ -118,7 +118,7 @@ def run_sequential(args, logger):
     if args.load_buffer != "":
       
       try:
-        with open('/content/buffer.pkl', 'rb') as file:
+        with open('buffer.pkl', 'rb') as file:
           buffer = pickle.load(file)
         episode = buffer.episodes_in_buffer
       except (pickle.UnpicklingError, FileNotFoundError) as e:
@@ -162,6 +162,7 @@ def run_sequential(args, logger):
         for name in os.listdir(args.checkpoint_path):
             full_name = os.path.join(args.checkpoint_path, name)
             # Check if they are dirs the names of which are numbers
+            print("full_name: ", full_name)
             if os.path.isdir(full_name) and name.isdigit():
                 timesteps.append(int(name))
 
@@ -190,7 +191,7 @@ def run_sequential(args, logger):
     # episode = 0 # Set about for if loaded buffer
     last_test_T = -args.test_interval - 1
     last_log_T = 0
-    model_save_time = 0
+    model_save_time = runner.t_env
 
     start_time = time.time()
     last_time = start_time 
@@ -233,11 +234,11 @@ def run_sequential(args, logger):
           # If after each action we did an episode as a batch
           # that would be 40*40 = 1600
           # So this is equal to that but mixes it up more
-          
-          for _ in range(10):
+         
+          for _ in range(1): #10):
             new_batch = None #runner.new_batch64()
             episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
-          
+         
             if episode_sample != None:
 
               # Truncate batch to only filled timesteps
