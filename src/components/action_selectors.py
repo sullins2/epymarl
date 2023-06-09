@@ -83,6 +83,9 @@ class SoftPoliciesSelector():
         self.args = args
 
     def select_action(self, agent_inputs, avail_actions, t_env, test_mode=False):
+        # if t_env > 21000: # and t_env % 1000 == 0:
+        #   print("TEST MODE: ", test_mode)
+        #   print(agent_inputs)
         m = Categorical(agent_inputs)
         picked_actions = m.sample().long()
         return picked_actions
