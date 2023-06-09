@@ -26,6 +26,12 @@ class COMALearner:
         self.agent_params = list(mac.parameters())
         self.critic_params = list(self.critic.parameters())
 
+        # for p in self.agent_params:
+        #     p.register_hook(lambda grad: grad.clamp_(-1.0, 1.0))
+
+        # for p in self.critic_params:
+        #     p.register_hook(lambda grad: grad.clamp_(-1.0, 1.0))
+
         self.agent_optimiser = Adam(params=self.agent_params, lr=args.lr)
         self.critic_optimiser = Adam(params=self.critic_params, lr=args.lr)
 
@@ -44,7 +50,7 @@ class COMALearner:
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
-        avail_actions = batch["avail_actions"][:, :-1]
+        avail_actions = None #batch["avail_actions"][:, :-1]
 
         if self.args.standardise_rewards:
             self.rew_ms.update(rewards)
@@ -62,7 +68,7 @@ class COMALearner:
         mac_out = []
         self.mac.init_hidden(batch.batch_size)
         for t in range(batch.max_seq_length - 1):
-            agent_outs = self.mac.forward(batch, t=t)
+            agent_outs = self.mac.forward(batch, t=t, t_env=t_env)
             mac_out.append(agent_outs)
         mac_out = th.stack(mac_out, dim=1)  # Concat over time
 
@@ -87,6 +93,8 @@ class COMALearner:
         coma_loss.backward()
         grad_norm = th.nn.utils.clip_grad_norm_(self.agent_params, self.args.grad_norm_clip)
         self.agent_optimiser.step()
+
+       
 
         self.critic_training_steps += 1
 
@@ -142,6 +150,8 @@ class COMALearner:
         self.critic_optimiser.zero_grad()
         loss.backward()
         grad_norm = th.nn.utils.clip_grad_norm_(self.critic_params, self.args.grad_norm_clip)
+        # grad_norm = th.nn.utils.clip_grad_norm_(self.critic_params, max_norm=2.0, norm_type=2)
+        # th.nn.utils.clip_grad_value_(self.critic_params, clip_value=10.0)
         self.critic_optimiser.step()
 
         running_log["critic_loss"].append(loss.item())
