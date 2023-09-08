@@ -9,12 +9,12 @@ class RNNAgent(nn.Module):
         self.args = args
 
         self.fc1 = nn.Linear(input_shape, args.hidden_dim)
-        self.bn1 = nn.BatchNorm1d(args.hidden_dim) 
+        # self.bn1 = nn.BatchNorm1d(args.hidden_dim) 
         if self.args.use_rnn:
             self.rnn = nn.GRUCell(args.hidden_dim, args.hidden_dim)
         else:
             self.rnn = nn.Linear(args.hidden_dim, args.hidden_dim)
-        self.bn2 = nn.BatchNorm1d(args.hidden_dim)
+        # self.bn2 = nn.BatchNorm1d(args.hidden_dim)
         self.fc2 = nn.Linear(args.hidden_dim, args.n_actions)
 
         self.lr = nn.LeakyReLU(0.1)
@@ -66,12 +66,12 @@ class RNNAgent(nn.Module):
         #       print('Gradient of {} ({})'.format(name, param.shape))
         #       print(param.grad)
 
-        x = self.lr(self.bn1(self.fc1(inputs)))  # Apply batch normalization after fc1
+        x = self.lr(self.fc1(inputs))  # Apply batch normalization after fc1
         h_in = hidden_state.reshape(-1, self.args.hidden_dim)
         if self.args.use_rnn:
             h = self.rnn(x, h_in)
         else:
-            h = self.lr(self.bn2(self.rnn(x)))  # Apply batch normalization after rnn
+            h = self.lr(self.rnn(x))  # Apply batch normalization after rnn
         q = self.fc2(h)
 
         ##########
@@ -89,8 +89,3 @@ class RNNAgent(nn.Module):
         return loss, h
 
         # return q, h
-
-        
-
-        
-
