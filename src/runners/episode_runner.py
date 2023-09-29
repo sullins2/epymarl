@@ -248,6 +248,7 @@ class EpisodeRunner:
           self.test_returns = []
           avg = [0,0,0,0]
           final = 0
+          plt.figure(figsize=(4, 2))
           plt.plot(self.t_env_plot, self.return_plot, label='Mean Return', color='red')
           plt.show()
           for x in self.ret:
