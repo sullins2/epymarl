@@ -4,6 +4,7 @@ from components.episode_buffer import EpisodeBatch
 import numpy as np
 import random
 import torch as th
+import matplotlib.pyplot as plt
 
 class EpisodeRunner:
 
