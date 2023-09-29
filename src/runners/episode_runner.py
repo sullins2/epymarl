@@ -248,6 +248,7 @@ class EpisodeRunner:
           avg = [0,0,0,0]
           final = 0
           plt.plot(self.t_env_plot, self.return_plot, label='Mean Return', color='red')
+          plt.show()
           for x in self.ret:
             final += sum(x)
             # avg[0] += x[0]
