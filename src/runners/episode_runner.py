@@ -28,6 +28,9 @@ class EpisodeRunner:
         self.train_stats = {}
         self.test_stats = {}
 
+        self.t_env_plot = []
+        self.return_plot = []
+        
         self.ret = []
 
         self.exp_replay = [[]]
@@ -244,6 +247,7 @@ class EpisodeRunner:
           self.test_returns = []
           avg = [0,0,0,0]
           final = 0
+          plt.plot(self.t_env_plot, self.return_plot, label='Mean Return', color='red')
           for x in self.ret:
             final += sum(x)
             # avg[0] += x[0]
@@ -258,10 +262,14 @@ class EpisodeRunner:
           # print("FINAL:", avg)
           self.logger.log_stat("sum", avg, self.t_env)
           self.ret = []
+            
         
         return self.batch
 
     def _log(self, returns, stats, prefix):
+        if prefix + "return_mean" == "test_return_mean":
+            self.t_env_plot.append(self.t_env)
+            self.return_plot.append(np.mean(returns))
         self.logger.log_stat(prefix + "return_mean", np.mean(returns), self.t_env)
         self.logger.log_stat(prefix + "return_std", np.std(returns), self.t_env)
         returns.clear()
