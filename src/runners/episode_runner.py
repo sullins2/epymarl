@@ -124,7 +124,7 @@ class EpisodeRunner:
 
             post_transition_data = {
                 "actions": actions,
-                "reward": [(reward,)], #[(rewards[0],rewards[1],rewards[2],rewards[3])],
+                "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])],
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
                 # "nextobs": [self.env.get_obs()]
             }
