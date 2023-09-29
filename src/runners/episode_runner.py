@@ -187,9 +187,9 @@ class EpisodeRunner:
             curRew[i][t] += (20.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         # set them all as curRew
-        # for t in range(self.t):
-        #   for i in range(4):
-        #     self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
+        for t in range(self.t):
+          for i in range(4):
+            self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
 
 
 
