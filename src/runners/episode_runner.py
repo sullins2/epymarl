@@ -5,6 +5,7 @@ import numpy as np
 import random
 import torch as th
 import matplotlib.pyplot as plt
+from IPython.display import display
 
 class EpisodeRunner:
 
@@ -21,6 +22,7 @@ class EpisodeRunner:
         self.t = 0
 
         self.t_env = 0
+        self.t_test = 0
 
         self.fill_gamma()
 
@@ -128,7 +130,7 @@ class EpisodeRunner:
 
             post_transition_data = {
                 "actions": actions,
-                "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])],
+                "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])], #[(reward,)], #
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
                 # "nextobs": [self.env.get_obs()]
             }
@@ -188,13 +190,12 @@ class EpisodeRunner:
         totalRew = sum(cumRew) + 0.1 #0.1 is from original paper
         for i in range(4):
           for t in range(self.t):
-            curRew[i][t] += (20.0 / 3.0)*(totalRew - cumRew[i]) / self.t
+            curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         # set them all as curRew
         for t in range(self.t):
           for i in range(4):
             self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
-
 
 
         if test_mode:
@@ -232,9 +233,8 @@ class EpisodeRunner:
 
         # Again, this is a useless state
         cur_returns.append(episode_other)
-
-        
-
+        # self.args.test_nepisode = 50
+  
         if test_mode and (len(self.test_returns) == self.args.test_nepisode):
             self._log(cur_returns, cur_stats, log_prefix)
         elif self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
@@ -248,9 +248,14 @@ class EpisodeRunner:
           self.test_returns = []
           avg = [0,0,0,0]
           final = 0
-          plt.figure(figsize=(4, 2))
+          # plt.figure(figsize=(2, 1))
+          print("Trying to plot")
+          # plt.plot ([1,2,3],[5,7,4])
+          # plt.show()
+          plt.ylim(1.0, 2.0)
           plt.plot(self.t_env_plot, self.return_plot, label='Mean Return', color='red')
           plt.show()
+          # display(plt.gcf())
           for x in self.ret:
             final += sum(x)
             # avg[0] += x[0]
@@ -270,9 +275,11 @@ class EpisodeRunner:
         return self.batch
 
     def _log(self, returns, stats, prefix):
-        if prefix + "return_mean" == "test_return_mean":
-            self.t_env_plot.append(self.t_env)
-            self.return_plot.append(np.mean(returns))
+        if prefix + "return_mean" == "test_return_mean" and self.t_env > 9000:
+            # print("Saving plot data")
+            self.t_env_plot.append(self.t_test)
+            self.return_plot.append(np.abs(np.mean(returns)))
+            self.t_test += 1
         self.logger.log_stat(prefix + "return_mean", np.mean(returns), self.t_env)
         self.logger.log_stat(prefix + "return_std", np.std(returns), self.t_env)
         returns.clear()
