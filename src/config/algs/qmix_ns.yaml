@@ -2,17 +2,17 @@
 
 # use epsilon greedy action selector
 action_selector: "epsilon_greedy"
-epsilon_start: 1.0
+epsilon_start: 0.9
 epsilon_finish: 0.05
-epsilon_anneal_time: 50000
+epsilon_anneal_time: 750000
 evaluation_epsilon: 0.0
 
 runner: "episode"
 
-buffer_size: 5000
+buffer_size: 10000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 200
+target_update_interval_or_tau: 400
 
 
 # use the Q_Learner to train
@@ -24,11 +24,11 @@ obs_individual_obs: False
 mac: "non_shared_mac"
 agent: "rnn_ns"
 standardise_returns: False
-standardise_rewards: True
+standardise_rewards: False
 
 agent_output_type: "q"
 learner: "q_learner"
-double_q: True
+double_q: False
 use_rnn: False
 mixer: "qmix"
 mixing_embed_dim: 32
