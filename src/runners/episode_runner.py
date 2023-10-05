@@ -130,7 +130,7 @@ class EpisodeRunner:
 
             post_transition_data = {
                 "actions": actions,
-                "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])], #[(reward,)], #
+                "reward": #[(reward,)], # [(rewards[0],rewards[1],rewards[2],rewards[3])], #[(reward,)], #
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
                 # "nextobs": [self.env.get_obs()]
             }
@@ -187,15 +187,15 @@ class EpisodeRunner:
         self.ret += [result1]
 
         # Applying reward shaping
-        totalRew = sum(cumRew) + 0.1 #0.1 is from original paper
-        for i in range(4):
-          for t in range(self.t):
-            curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
+        # totalRew = sum(cumRew) + 0.1 #0.1 is from original paper
+        # for i in range(4):
+        #   for t in range(self.t):
+        #     curRew[i][t] += (40.0 / 3.0)*(totalRew - cumRew[i]) / self.t
 
         # set them all as curRew
-        for t in range(self.t):
-          for i in range(4):
-            self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
+        # for t in range(self.t):
+        #   for i in range(4):
+        #     self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
 
 
         if test_mode:
