@@ -7,7 +7,7 @@ env_args:
 
 test_greedy: True
 test_nepisode: 50
-test_interval: 500
+test_interval: 2000
 log_interval: 3000
 runner_log_interval: 3000
 learner_log_interval: 3000
