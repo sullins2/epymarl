@@ -2,7 +2,7 @@
 
 # use epsilon greedy action selector
 action_selector: "epsilon_greedy"
-epsilon_start: 0.9
+epsilon_start: 0.95
 epsilon_finish: 0.05
 epsilon_anneal_time: 1850000
 evaluation_epsilon: 0.0
@@ -12,17 +12,16 @@ runner: "episode"
 buffer_size: 10000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 800
+target_update_interval_or_tau: 100
 
 
 obs_agent_id: True
 obs_last_action: False
 obs_individual_obs: False
-use_rnn: False
 
 # use the Q_Learner to train
 standardise_returns: False
-standardise_rewards: False
+standardise_rewards: True
 agent_output_type: "q"
 learner: "q_learner"
 double_q: False
