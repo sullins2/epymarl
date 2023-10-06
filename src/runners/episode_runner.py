@@ -252,7 +252,7 @@ class EpisodeRunner:
           print("Trying to plot")
           # plt.plot ([1,2,3],[5,7,4])
           # plt.show()
-          plt.ylim(1.0, 4.0)
+          plt.ylim(0.0, 90.0)
           plt.plot(self.t_env_plot, self.return_plot, label='Mean Return', color='red')
           plt.show()
           # display(plt.gcf())
