@@ -12,7 +12,7 @@ runner: "episode"
 buffer_size: 5000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 150
+target_update_interval_or_tau: 1000
 
 
 obs_agent_id: True
