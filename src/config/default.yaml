@@ -33,10 +33,10 @@ save_buffer: 5000
 gamma: 0.99
 batch_size: 64 # Number of episodes to train on
 buffer_size: 32 # Size of the replay buffer
-lr: 0.001 #0.0005 # # Learning rate for agents
+lr: 0.007 #0.00025 # # Learning rate for agents
 optim_alpha: 0.99 # RMSProp alpha
 optim_eps: 0.00001 # RMSProp epsilon
-grad_norm_clip: 10 # Reduce magnitude of gradients above this L2 norm
+grad_norm_clip: 15 # WAS 10 Reduce magnitude of gradients above this L2 norm WAS 10
 add_value_last_step: True
 
 # --- Agent parameters ---
