@@ -212,7 +212,7 @@ def run_sequential(args, logger):
         # Before: Would sample n episodes and train on them
         # Now: Creates a temp batch of random experiences
         # Maybe try if > 500 and episode % 20 == 0, then use very large batch
-        if episode > 64 and buffer.can_sample(64): #args.batch_size):
+        if episode > 128 and buffer.can_sample(128): #args.batch_size):
           
           # TODO: make this able to be set from here?
           # Create new (empty) batch of some size
