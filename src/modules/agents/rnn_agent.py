@@ -17,7 +17,7 @@ class RNNAgent(nn.Module):
         # self.bn2 = nn.BatchNorm1d(args.hidden_dim)
         self.fc2 = nn.Linear(args.hidden_dim, args.n_actions)
 
-        self.lr = nn.LeakyReLU(0.1)
+        self.lr = nn.ReLU()
 
         # Weight initialization
         init.xavier_uniform_(self.fc1.weight)
