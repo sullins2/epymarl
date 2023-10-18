@@ -130,7 +130,7 @@ class EpisodeRunner:
 
             post_transition_data = {
                 "actions": actions,
-                "reward": [(reward,)], # [(rewards[0],rewards[1],rewards[2],rewards[3])], #[(reward,)], #
+                "reward": [(rewards[0],rewards[1],rewards[2],rewards[3])], #[(reward,)], #[(reward,)],
                 "terminated": [(terminated != env_info.get("episode_limit", False),)],
                 # "nextobs": [self.env.get_obs()]
             }
@@ -194,12 +194,12 @@ class EpisodeRunner:
 
         # set them all as curRew
         for t in range(self.t):
-          temp = 0.0
+          # temp = 0.0
           for i in range(4):
-            temp += curRew[i][t]
+            # temp += curRew[i][t]
               
-          # self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
-          self.batch.data.transition_data["reward"][0][t] = temp
+            self.batch.data.transition_data["reward"][0][t][i] = curRew[i][t]
+          # self.batch.data.transition_data["reward"][0][t] = temp
 
 
         if test_mode:
