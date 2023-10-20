@@ -12,7 +12,7 @@ runner: "episode"
 buffer_size: 10000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 4000
+target_update_interval_or_tau: 400
 
 
 obs_agent_id: True
@@ -28,7 +28,7 @@ agent_output_type: "q"
 learner: "q_learner"
 double_q: False
 mixer: "qmix"
-use_rnn: False
+use_rnn: True
 mixing_embed_dim: 32
 hypernet_layers: 2
 hypernet_embed: 64
