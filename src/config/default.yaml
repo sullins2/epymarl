@@ -6,19 +6,19 @@ mac: "basic_mac" # Basic controller
 env: "sc2" # Environment name
 env_args: {} # Arguments for the environment
 batch_size_run: 1 # Number of environments to run in parallel
-test_nepisode: 20 # Number of episodes to test for
-test_interval: 500 # WAS 2000 Test after {} timesteps have passed
+test_nepisode: 50 # Number of episodes to test for
+test_interval: 2500 # WAS 2000 Test after {} timesteps have passed
 test_greedy: True # Use greedy evaluation (if False, will set epsilon floor to 0
 log_interval: 2000 # Log summary of stats after every {} timesteps
 runner_log_interval: 2000 # Log runner stats (not test stats) every {} timesteps
 learner_log_interval: 2000 # Log training stats every {} timesteps
-t_max: 10000 # Stop running after this many timesteps
-use_cuda: True # Use gpu by default unless it isn't available
+t_max: 1000000 # Stop running after this many timesteps
+use_cuda: False # Use gpu by default unless it isn't available
 buffer_cpu_only: True # If true we won't keep all of the replay buffer in vram
 
 # --- Logging options ---
 use_tensorboard: False # Log results to tensorboard
-save_model: True # Save the models to disk
+save_model: False # Save the models to disk
 save_model_interval: 11125000 # Save models after this many timesteps
 checkpoint_path: "" # "/content/epymarl/" # "/content/results/models/iql_ns_seed303422021_beer_game_env:BeerGame-v0_2023-06-02 16:07:56.030651" # "/content/results/models/iql_ns_seed801798667_beer_game_env:BeerGame-v0_2023-06-01 18:36:54.909905" # Load a checkpoint from this path
 evaluate: False # Evaluate model for test_nepisode episodes and quit (no training)
@@ -33,7 +33,7 @@ save_buffer: 5000
 gamma: 0.99
 batch_size: 128 # Number of episodes to train on
 buffer_size: 32 # Size of the replay buffer
-lr: 0.007 #0.00025 # # Learning rate for agents
+lr: 0.00025 # # Learning rate for agents
 optim_alpha: 0.99 # RMSProp alpha
 optim_eps: 0.00001 # RMSProp epsilon
 grad_norm_clip: 15 # WAS 10 Reduce magnitude of gradients above this L2 norm WAS 10
