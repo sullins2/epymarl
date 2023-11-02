@@ -38,7 +38,7 @@ class QLearner:
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
-        avail_actions = batch["avail_actions"]
+        # avail_actions = batch["avail_actions"]
 
         # Calculate estimated Q-Values
         mac_out = []
@@ -70,9 +70,9 @@ class QLearner:
         target_mac_hidden_states = target_mac_hidden_states.reshape(batch.batch_size, self.args.n_agents, batch.max_seq_length, -1).transpose(1,2) #btav
 
         # Mask out unavailable actions
-        target_mac_out[avail_actions[:, :] == 0] = -9999999  # From OG deepmarl
+        # target_mac_out[avail_actions[:, :] == 0] = -9999999  # From OG deepmarl
         mac_out_maxs = mac_out.clone()
-        mac_out_maxs[avail_actions == 0] = -9999999
+        # mac_out_maxs[avail_actions == 0] = -9999999
 
         # Best joint action computed by target agents
         target_max_actions = target_mac_out.max(dim=3, keepdim=True)[1]
