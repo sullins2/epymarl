@@ -32,6 +32,6 @@ rnn_hidden_dim: 134
 opt_loss: 1
 nopt_min_loss: 0.1
 
-network_size: small
+network_size: big
 
 name: "qtran"
