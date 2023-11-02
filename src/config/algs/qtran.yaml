@@ -14,6 +14,10 @@ buffer_size: 5000
 # update the target network every {} episodes
 target_update_interval: 200
 
+obs_agent_id: True
+obs_last_action: False
+obs_individual_obs: False
+
 # use the Q_Learner to train
 agent_output_type: "q"
 learner: "qtran_learner"
