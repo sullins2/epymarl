@@ -11,10 +11,10 @@ runner: "episode"
 buffer_size: 10000
 
 # update the target network every {} episodes
-target_update_interval_or_tau: 5000
+target_update_interval_or_tau: 400
 
 
-obs_agent_id: False
+obs_agent_id: True
 obs_last_action: False
 obs_individual_obs: False
 
@@ -25,7 +25,7 @@ learner: "q_learner"
 standardise_returns: False
 standardise_rewards: False
 double_q: False
-use_rnn: False
+use_rnn: True
 mixer: # Mixer becomes None
 
 name: "iql"
