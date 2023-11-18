@@ -12,6 +12,7 @@ from utils.timehelper import time_left, time_str
 from os.path import dirname, abspath
 import random
 import pickle
+import copy
 
 from learners import REGISTRY as le_REGISTRY
 from runners import REGISTRY as r_REGISTRY
@@ -218,7 +219,7 @@ def run_sequential(args, logger):
         if ep > 64:
             buffer2.insert_episode_batch(episode_batch)
         if ep == 128:
-            buffer = buffer2.copy()
+            buffer = copy.copy(buffer2)
             ep = 0
         ep += 1
 
