@@ -133,6 +133,14 @@ def run_sequential(args, logger):
         preprocess=preprocess,
         device="cpu" if args.buffer_cpu_only else args.device,
     )
+      buffer2 = ReplayBuffer(
+        scheme,
+        groups,
+        args.buffer_size,
+        env_info["episode_limit"] + 1,
+        preprocess=preprocess,
+        device="cpu" if args.buffer_cpu_only else args.device,
+    )
       episode = 0
 
     # Setup multiagent controller here
@@ -199,7 +207,7 @@ def run_sequential(args, logger):
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 
     # torch.backends.cudnn.benchmark = True
-
+    ep = 0
     while runner.t_env <= args.t_max:
 
         # Play an entire episode and get batch of experiences
@@ -207,12 +215,19 @@ def run_sequential(args, logger):
         
         # Insert batch into buffer
         buffer.insert_episode_batch(episode_batch)
+        if ep > 64:
+            buffer2.insert_episode_batch(episode_batch)
+        if ep == 128:
+            buffer = buffer2.copy()
+            ep = 0
+        ep += 1
+
         
         # Train on large number of experiences
         # Before: Would sample n episodes and train on them
         # Now: Creates a temp batch of random experiences
         # Maybe try if > 500 and episode % 20 == 0, then use very large batch
-        if episode > 128 and buffer.can_sample(128): #args.batch_size):
+        if episode > 64 and buffer.can_sample(64): #args.batch_size):
           
           # TODO: make this able to be set from here?
           # Create new (empty) batch of some size
