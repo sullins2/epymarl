@@ -27,6 +27,7 @@ class QLearner:
             self.params += list(self.mixer.parameters())
             self.target_mixer = copy.deepcopy(self.mixer)
 
+        self.n_agents = 4
         self.optimiser = Adam(params=self.params, lr=args.lr)
 
         # a little wasteful to deepcopy (e.g. duplicates action selector), but should work for any MAC
