@@ -22,9 +22,9 @@ obs_individual_obs: False
 
 agent_output_type: "q"
 learner: "q_learner"
-standardise_returns: False
+standardise_returns: True
 standardise_rewards: False
-double_q: False
+double_q: True
 use_rnn: True
 mixer: # Mixer becomes None
 
