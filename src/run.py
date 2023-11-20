@@ -251,7 +251,7 @@ def run_sequential(args, logger):
           # that would be 40*40 = 1600
           # So this is equal to that but mixes it up more
          
-          for _ in range(2): #10):
+          for _ in range(7): #10):
             new_batch = None #runner.new_batch64()
             episode_sample = buffer.sample(args.batch_size, args, learner, runner.t_env, new_batch)
          
