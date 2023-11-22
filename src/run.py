@@ -216,9 +216,9 @@ def run_sequential(args, logger):
         
         # Insert batch into buffer
         buffer.insert_episode_batch(episode_batch)
-        if ep > 20:
+        if ep > 64:
             buffer2.insert_episode_batch(episode_batch)
-        if ep == 40:
+        if ep == 128:
             buffer = copy.deepcopy(buffer2)
             ep = 0
         ep += 1
