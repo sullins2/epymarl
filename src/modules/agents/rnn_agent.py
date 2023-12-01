@@ -83,6 +83,10 @@ class RNNAgent(nn.Module):
         for param in self.parameters():
             l2_reg += th.norm(param)
 
+        # for name, param in self.named_parameters():
+        #     if 'bias' not in name:  # Exclude biases from regularization
+        #         l2_reg += th.norm(param)
+
         # Add regularization term to the loss
         l2_loss = l2_lambda * l2_reg
         loss = q + l2_loss
