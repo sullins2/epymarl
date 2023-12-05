@@ -9,10 +9,10 @@ evaluation_epsilon: 0.0
 
 runner: "episode"
 
-buffer_size: 5000
+buffer_size: 2000
 
 # update the target network every {} episodes
-target_update_interval: 200
+target_update_interval: 400
 
 obs_agent_id: True
 obs_last_action: False
